@@ -3,9 +3,9 @@
 #include <stdlib.h>
 #include <SDL.h>
 #include <ctype.h>
-#include "chip8_processor.h"
-#include "chip8_instruction_set.h"
-#include "sdl_config.h"
+#include "include/chip8_processor.h"
+#include "include/chip8_instruction_set.h"
+#include "include/sdl_config.h"
 
 int main(int argc, char** argv){
 	char input = 'a';

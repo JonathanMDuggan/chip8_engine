@@ -1,6 +1,6 @@
 #pragma once
-#include "chip8_processor.h"
-#include "chip8_load_ROM.h"
+#include "include/chip8_processor.h"
+#include "include/chip8_load_ROM.h"
 #include <stdio.h>
 #include <stdlib.h>
 // Reads Chip8 ROM from OS
