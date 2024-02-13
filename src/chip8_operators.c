@@ -1,6 +1,6 @@
 #pragma once 
-#include"chip8_operators.h"
-#include"chip8_instruction_set.h"
+#include"include/chip8_operators.h"
+#include"include/chip8_instruction_set.h"
 
 // Note: ChatGPT wrote the nibble comments, they were too good to let down
 

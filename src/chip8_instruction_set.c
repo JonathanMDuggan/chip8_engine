@@ -3,9 +3,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "chip8_processor.h"
-#include "chip8_instruction_set.h"
-#include "chip8_operators.h"
+#include "include/chip8_processor.h"
+#include "include/chip8_instruction_set.h"
+#include "include/chip8_operators.h"
 
 // Instruction Set functions:
 // 

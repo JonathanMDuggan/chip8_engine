@@ -1,5 +1,5 @@
 #pragma once
-#include "chip8_processor.h"
+#include "include/chip8_processor.h"
 
 // Sets the Chip8 font to the 04b_21 standard on runtime
 void Chip8InitializeFontSet(Chip8* chip8) {
