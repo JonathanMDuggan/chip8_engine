@@ -20,7 +20,5 @@ int main(int argc, char** argv){
 		}
 		break;
 	}
-
-	SDLCleanUp();
 	return EXIT_SUCCESS;
 }

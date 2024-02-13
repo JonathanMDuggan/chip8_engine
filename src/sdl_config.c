@@ -13,9 +13,11 @@ void SDLStart() {
 }
 // returns 1 if the process wasn't able to compete
 uint8_t SDLInitialize() {
-	SDL_Window*   window   = NULL;
+	SDL_Window* window = NULL;
 	SDL_Renderer* renderer = NULL;
-	SDL_Surface*  surface  = NULL;
+	SDL_Surface* surface = NULL;
+	uint8_t emulator_is_running = TRUE;
+	SDL_Event event;
 
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
 		printf("[-] SDL could not initialize");
@@ -28,7 +30,7 @@ uint8_t SDLInitialize() {
 														SDL_WINDOW_OPENGL);
 	// Cheaks if the window was created, if not, print the error to the console
 	if (window == NULL) {
-		printf("[-] SDL Window could not open: %s\n", SDL_GetError());
+		printf("[-] SDL window could not open: %s\n", SDL_GetError());
 		return EXIT_FAILURE;
 	}
 	// Create surface:
@@ -42,14 +44,26 @@ uint8_t SDLInitialize() {
 
 	// Create renderer:
 	renderer = SDL_CreateRenderer(window, -1, 0);
-
-	if (renderer == NULL) {
-		printf("[-] SDL Renderer failted to initialize\n");
-	}
-
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 	SDL_RenderClear(renderer);
-	SDL_RenderPresent(renderer);	
+	SDL_RenderPresent(renderer);
+
+	if (renderer == NULL) {
+		printf("[-] SDL renderer failed to initialize\n");
+	}
+
+	do{
+		while (SDL_PollEvent(&event)) {
+			if (event.type == SDL_QUIT) {
+				emulator_is_running = FALSE;
+			}
+		}
+	} while (emulator_is_running);
+
+	printf("[i] SDL shuting down\n");
+	SDL_FreeSurface(surface);
+	SDL_DestroyWindow(window);
+	SDL_Quit();
 	return 0;
 }
 // Create window for the Chip 8 emulator
@@ -68,13 +82,4 @@ void SDLRendrer(SDL_Renderer* renderer, SDL_Surface* window){
 
 void SDLDraw() {
 
-}
-
-// Close all SDL functions
-uint8_t SDLCleanUp() {
-	// Closes all the functions or something, you got to clear them all before
-	// closing the app 
-	printf("[+] SDL shuting down");
-	SDL_Quit();
-	return 0;
 }
