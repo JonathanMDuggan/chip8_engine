@@ -45,6 +45,7 @@ uint8_t SDLInitialize() {
 
 	SDL_SetWindowTitle(window, CHIP8_APPLICATION_NAME);
 	// Sets the color to blue!
+	SDL_RenderSetScale(renderer, 40, 40);
 	SDL_SetRenderDrawColor(renderer, 22, 0, 65, 255);
 	SDL_RenderClear(renderer);
 	SDL_RenderPresent(renderer);
