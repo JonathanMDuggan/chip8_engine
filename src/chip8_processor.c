@@ -1,5 +1,50 @@
 #pragma once
-#include "chip8_processor.h"
+#include "include/chip8_processor.h"
+#include <string.h>
+
+void Chip8InitializeRegisters(Chip8* chip8){
+  // Set all the general perpose register to 0
+  memset(chip8->_register->general_perpose, 0, 
+         sizeof(chip8->_register->general_perpose));
+  // Set the screen to black;
+  memset(chip8->screen, 0, sizeof(chip8->screen));
+  // Set the stack to nothing but zeros 
+  memset(chip8->stack, 0, sizeof(chip8->stack));
+
+  // Point to where the programs are in memory at bootup
+  chip8->_register->program_counter = kChip8StackBase;
+  chip8->_register->stack_pointer = 0;
+  chip8->_register->delay_timer   = 0;
+  chip8->_register->sound_timer   = 0;
+  chip8->_register->index         = 0;
+  
+  return;
+}
+// Initialize memory space for chip8 4k Memory layout
+// +------------------+ 0xFFF
+// | Chip-8 Program   |
+// | Data Space       |
+// |                  |
+// |                  |
+// |                  |
+// |                  |
+// |                  |
+// |                  |
+// |                  |
+// |                  |
+// |                  |
+// +------------------+ 0x200
+// | Nothing Space    |
+// +------------------+ 0x080
+// | Font Set Space   |
+// |                  |
+// +------------------+ 0x000
+void Chip8InitializeMemory(Chip8* chip8) {
+  // Store the font set in the memory
+  Chip8InitializeFontSet(chip8);
+  // This is for the nothing space
+  memset(chip8->memory[kChipNothingSpace], 0, 0x17E);
+}
 
 // Sets the Chip8 font to the 04b_21 standard on runtime
 void Chip8InitializeFontSet(Chip8* chip8) {
@@ -107,21 +152,8 @@ void Chip8InitializeFontSet(Chip8* chip8) {
     0b10000000
   };
 
-  for (i = 0; i < kChip8FontSetSize; i++){
-    chip8->fontset[i] = kChip8FontsetData[i];
+  for (i = kChip8FontSetAddress; i < kChip8FontSetSize; i++) {
+    chip8->memory[i] = kChip8FontsetData[i];
   }
-  return;
-}
-
-void Chip8InitializeRegisters(Chip8* chip8){
-  size_t i;
-  chip8->_register->program_counter = kChip8StackBase;
-  // Set all the general perpose register to 0
-  for (i = 0; i < kChip8MaxNumberOfGeneralPerposeRegisters; i++){
-    chip8->_register->general_perpose[i] = 0;
-  }
-
-  chip8->_register->stack_pointer = 0;
-  Chip8InitializeFontSet(chip8);
   return;
 }

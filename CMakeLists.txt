@@ -12,15 +12,14 @@ find_package(SDL2 REQUIRED)
 
 # Add source to this project's executable.
 add_executable (chip8_engine
-
-                            "src/main.c"
-  "src/chip8_processor.h"       "src/chip8_processor.c" 
-  "src/chip8_instruction_set.h" "src/chip8_instruction_set.c"
-  "src/chip8_load_ROM.h"        "src/chip8_load_ROM.c"
-  "src/chip8_operators.h"       "src/chip8_operators.c"
-  "src/sdl_config.h"            "src/sdl_config.c"
-
- "src/chip8_names.h")
+                                        "src/main.c"
+  "src/include/chip8_processor.h"       "src/chip8_processor.c" 
+  "src/include/chip8_instruction_set.h" "src/chip8_instruction_set.c"
+  "src/include/chip8_load_ROM.h"        "src/chip8_load_ROM.c"
+  "src/include/chip8_operators.h"       "src/chip8_operators.c"
+  "src/include/sdl_config.h"            "src/sdl_config.c"
+  "src/include/chip8_names.h"
+)
 
 # Include directory for header files
 target_include_directories(chip8_engine PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})

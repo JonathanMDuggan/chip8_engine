@@ -1,7 +1,8 @@
 #pragma once
 #include <stdio.h>
-#include "sdl_config.h"
-#include "chip8_names.h"
+#include <stdlib.h>
+#include "include/sdl_config.h"
+#include "include/chip8_names.h"
 void sdlVideoStuff() {
 	printf("[+] Starting up SDL Video Stuff!\n");
 	return;
@@ -12,63 +13,65 @@ void SDLStart() {
 }
 // returns 1 if the process wasn't able to compete
 uint8_t SDLInitialize() {
-	SDL_Window* window;
-	SDL_Renderer* renderer;
-	int frameCount, timerFPS, lastFrame, fps;
+	SDL_Window*   window = NULL;
+	SDL_Renderer* renderer = NULL;
+	uint8_t       emulator_is_running = TRUE;
+	SDL_Event     event;
 
-	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) == -1); {
-		printf("[-] SDL could not initialize subsystem: %s.\n", SDL_GetError());
-		return 1;
+	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+		printf("[-] SDL could not initialize");
+		return EXIT_FAILURE;
 	}
-	printf("[+] SDL Initialized.\n");
-	printf("[i] SDL Setting up video\n");
-	SDLVideo(window);
-	SDLRendrer(renderer, window);
+	// Creates a window instance
+	// Cheaks if the window was created, if not, print the error to the console
+	SDL_CreateWindowAndRenderer(kChip8DefaultWindowLength,
+															kChip8DefaultWindowHeight,
+															SDL_WINDOW_SHOWN, &window, &renderer);
+	// Doing this will casue the window to not have a name for less than a second,
+	// but I don't think I care to change this.
 
-	// This function call must happen before any other sdl function is 
-	return 0;
-}
-// Create window for the Chip 8 emulator
-void SDLVideo(SDL_Surface* window) {
-	// Initialzing the values to properties of the window
-	window = SDL_CreateWindow(CHIP8_APPLICATION_NAME,    SDL_WINDOWPOS_UNDEFINED,
-														SDL_WINDOWPOS_UNDEFINED,   kChip8DefaultWindowLength,
-														kChip8DefaultWindowHeight, SDL_WINDOW_FULLSCREEN | 
-														SDL_WINDOW_OPENGL);
+	// Check if the window and renderer were created, if not, print the error to
+	// the console
 	if (window == NULL) {
-		printf("[-] SDL Window failed to initialize\n");
-		return;
+		printf("[-] SDL window could not open: %s\n", SDL_GetError());
+		SDLQuit(window, renderer);
+		return EXIT_FAILURE;
 	}
-	printf("[+] SDL Window initialized .\n");
-}
-
-void SDLUpdate() {
-
-}
-
-void SDLInput() {
-
-}
-
-void SDLRendrer(SDL_Renderer* renderer, SDL_Surface* window){
-	renderer = SDL_CreateRenderer(window, -1, 0);
 	if (renderer == NULL) {
-		printf("[-] SDL Renderer failted to initialize\n");
+		printf("[-] SDL renderer failed to initialize: %s\n", SDL_GetError());
+		SDLQuit(window, renderer);
+		return EXIT_FAILURE;
 	}
-	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+
+	SDL_SetWindowTitle(window, CHIP8_APPLICATION_NAME);
+	// Sets the color to blue!
+	SDL_RenderSetScale(renderer, 40, 40);
+	SDL_SetRenderDrawColor(renderer, 22, 0, 65, 255);
 	SDL_RenderClear(renderer);
 	SDL_RenderPresent(renderer);
-}
 
-void SDLDraw() {
+	// Makes the screen look sharper
+	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+	SDL_RenderSetLogicalSize(renderer, 640, 480);
 
-}
 
-// Close all SDL functions
-uint8_t SDLCleanUp() {
-	// Closes all the functions or something, you got to clear them all before
-	// closing the app 
-	printf("[+] SDL shuting down");
-	SDL_Quit();
+	while (emulator_is_running){
+		while (SDL_PollEvent(&event)) {
+			if (event.type == SDL_QUIT) {
+				emulator_is_running = FALSE;
+			}
+		}
+	} 
+
+	printf("[i] SDL shuting down\n");
+	SDL_DestroyRenderer(renderer);
+	SDL_DestroyWindow(window);
+	SDL_Quit(window, renderer);
 	return 0;
+}
+
+void SDLQuit(SDL_Window* window, SDL_Renderer* readerer) {
+	SDL_DestroyRenderer(readerer);
+	SDL_DestroyWindow(window);
+	SDL_Quit();
 }

@@ -11,15 +11,17 @@ enum Chip8Constants{
   kChip8ScreenLenght = 64, kChip8ScreenHeight = 32, kChip8FontSetSize = 80,
 
   // General perpose registers 
-  kChip8V0 = 0, kChip8V1 = 1, kChip8V2 = 2, kChip8V3 = 3, kChip8V4 = 4,
-  kChip8V5 = 5, kChip8V6 = 6, kChip8V7 = 7, kChip8V8 = 8, kChip8V9 = 9,
+  kChip8V0 = 0, kChip8V1  = 1, kChip8V2  = 2, kChip8V3  = 3, kChip8V4  = 4,
+  kChip8V5 = 5, kChip8V6  = 6, kChip8V7  = 7, kChip8V8  = 8, kChip8V9  = 9,
   kChip8VA = 10, kChip8VB = 11, kChip8VD = 13, kChip8VE = 14, kChip8VF = 15,
 
   // Memory Locations
-  kChip8StackBase = 0x200, kChip8FontsetAddress = 0x50, 
-
+  kChip8StackBase = 0x200, kChip8FontSetAddress = 0x00, kChipNothingSpace = 0x80, 
+  // Memory Space
+  kChip8MaxROMSize = 0xDFE,
   // Input Output
   kKeyboard = 16
+
 };
 
 typedef struct {
