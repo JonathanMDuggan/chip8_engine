@@ -4,6 +4,7 @@
 cmake_minimum_required(VERSION 3.8)
 
 find_package(SDL2 REQUIRED)
+find_package(SDL2_image REQUIRED)
 
 # For some reason, if I enable this, Cmake will not required any SDL2 version
 # There is nothing online that I can find which explains this bug
@@ -26,6 +27,7 @@ target_include_directories(chip8_engine PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Link against SDL2 library
 target_link_libraries(chip8_engine SDL2::SDL2 SDL2::SDL2main)
+target_link_libraries(chip8_engine SDL2_image::SDL2_image)
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET chip8_engine PROPERTY CXX_STANDARD 20)

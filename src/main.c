@@ -9,12 +9,14 @@
 
 int main(int argc, char** argv){
 	char input = 'a';
-	
+	char inputBuffer[2] = {'a', '\0'};
 	SDLStart();
 	printf("Press X to close window: ");
 
 	for (;;) {
-		scanf("%c", &input);
+		if (sscanf(inputBuffer, "%c", &input) != 1) {
+			continue;
+		}
 		if (toupper(input) != 'X'){
 			continue;
 		}
