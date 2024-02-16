@@ -24,6 +24,14 @@ enum Chip8Constants{
 
 };
 
+enum Chip8InputMask {
+  kChip8KeyPad0 = 0x0001, kChip8KeyPad1 = 0x0002, kChip8KeyPad2 = 0x0004,
+  kChip8KeyPad3 = 0x0008, kChip8KeyPad4 = 0x0010, kChip8KeyPad5 = 0x0020,
+  kChip8KeyPad6 = 0x0040, kChip8KeyPad7 = 0x0080, kChip8KeyPad8 = 0x0100,
+  kChip8KeyPad9 = 0x0200, kChip8KeyPadA = 0x0400, kChip8KeyPadB = 0x0800,
+  kChip8KeyPadC = 0x1000, kChip8KeyPadD = 0x2000, kChip8KeyPadE = 0x4000,
+  kChip8KeyPadF = 0x8000
+};
 typedef struct {
   uint16_t index;
   uint16_t program_counter;
@@ -50,8 +58,12 @@ typedef struct {
   // black you can just put the value into the SDL function without needing
   // to translate the CHIP-8 display output.
   uint32_t screen[kChip8ScreenLenght][kChip8ScreenHeight];
+
   uint8_t fontset[kChip8FontSetSize];
   uint8_t keyboard[kKeyboard];
+
+  // This is a 16bit variable that stores bools of 16 inputs
+  uint16_t input;
 }Chip8;
 
 extern void Chip8InitializeFontSet(Chip8* chip8);

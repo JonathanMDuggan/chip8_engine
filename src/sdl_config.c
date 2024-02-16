@@ -1,22 +1,27 @@
 #pragma once
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include <SDL_image.h>
+
 #include "include/sdl_config.h"
 #include "include/chip8_names.h"
+#include "include/chip8_processor.h"
+#include "include/chip8_operators.h"
 
 void sdlVideoStuff() {
 	printf("[+] Starting up SDL Video Stuff!\n");
 	return;
 }
-void SDLStart() {
+void SDLStart(Chip8* chip8) {
 	printf("[i] SDL Initializing.\n");
-	SDLInitialize();
+	SDLInitialize(chip8);
 }
 // returns 1 if the process wasn't able to compete
-uint8_t SDLInitialize() {
+uint8_t SDLInitialize(Chip8* chip8) {
 	SDL_Window*   window = NULL;
 	SDL_Renderer* renderer = NULL;
+	SDL_Surface*  chip8_engine_window_icon = NULL;
 	uint8_t       emulator_is_running = TRUE;
 	SDL_Event     event;
 	Mouse				  mouse;
@@ -38,12 +43,12 @@ uint8_t SDLInitialize() {
 	// the console
 	if (window == NULL) {
 		printf("[-] SDL window could not open: %s\n", SDL_GetError());
-		SDLQuit(window, renderer);
+		SDLQuit(window, renderer, chip8_engine_window_icon);
 		return EXIT_FAILURE;
 	}
 	if (renderer == NULL) {
 		printf("[-] SDL renderer failed to initialize: %s\n", SDL_GetError());
-		SDLQuit(window, renderer);
+		SDLQuit(window, renderer, chip8_engine_window_icon);
 		return EXIT_FAILURE;
 	}
 
@@ -66,15 +71,12 @@ uint8_t SDLInitialize() {
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
 	SDL_RenderSetLogicalSize(renderer, 640, 480);
 
-	// Set the window icon to the chip8_engine logo
-	// BIG PROBLEM: I DON'T KNOW WHY, sdl cannot read from a relative path 
-	// FOR NO REASON!, so I used the absolute path and it worked somehow?
-	// needs to fix! ASAP!.
-	SDL_Surface* chip8_engine_window_icon = 
-		IMG_Load("I:/C projects/chip8_engine/chip8_engine/resources/chip8_engine_icon.png");
+	// Load the chip8 engine icon to the window
+	chip8_engine_window_icon = 
+		IMG_Load("resources/chip8_engine_icon.png");
 	if (chip8_engine_window_icon == NULL) {
 		printf("[-] SDL failed to load window icon: %s\n", IMG_GetError());
-		// Countinue running anyway, since it only effects the window and not the
+		// Continue running anyway, since it only effects the window and not the
 		// emulation
 	}
 	SDL_SetWindowIcon(window, chip8_engine_window_icon);
@@ -91,15 +93,25 @@ uint8_t SDLInitialize() {
 				printf("[i] Mouse location: %d,%d\n", mouse.location.x, mouse.location.y);
 				SDL_Delay(30);
 			}
+
 			switch (event.type) {
-			case SDL_QUIT:
-				emulator_is_running = FALSE;
-				break;
-			case SDL_KEYDOWN:
-				printf("[i] Key was pressed: %s\n",
-								SDL_GetKeyName(event.key.keysym.sym));
-				break;
+				case SDL_QUIT:
+					emulator_is_running = FALSE;
+					break;
+				case SDL_KEYDOWN:
+					printf("[i] Key was pressed: %s : %d\n",
+								SDL_GetKeyName(event.key.keysym.sym), event.key.keysym.sym);
+					if (strlen(SDL_GetKeyName(event.key.keysym.sym)) == 1) {
+						Chip8ProcessInput(chip8, event.key.keysym.sym);
+						break;
+					}
+				case SDL_KEYUP: 
+					if (strlen(SDL_GetKeyName(event.key.keysym.sym)) == 1) {
+						Chip8ProcessRelease(chip8, event.key.keysym.sym);
+						break;
+					}
 			}
+		
 		}
 		SDL_Delay(2);
 		i++;
@@ -110,11 +122,14 @@ uint8_t SDLInitialize() {
 	SDL_DestroyWindow(window);
 	SDL_FreeSurface(chip8_engine_window_icon);
 	SDL_Quit();
+	IMG_Quit();
 	return 0;
 }
 
-void SDLQuit(SDL_Window* window, SDL_Renderer* readerer) {
+void SDLQuit(SDL_Window* window, SDL_Renderer* readerer, SDL_Surface* surface) {
 	SDL_DestroyRenderer(readerer);
 	SDL_DestroyWindow(window);
+	SDL_FreeSurface(surface);
 	SDL_Quit();
+	IMG_Quit();
 }

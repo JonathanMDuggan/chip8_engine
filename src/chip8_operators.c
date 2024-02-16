@@ -34,6 +34,53 @@ inline uint16_t Read12bitFromWord(uint16_t value) {
   return (uint16_t)(value & 0x0FFF);
 }
 
+// Gets the input from the keyboard and changes the input value
+// in the Chip8
+void Chip8ProcessInput(Chip8* chip8, SDL_Keycode input){
+  printf("user input\n");
+  switch (input) {
+    case SDLK_1: chip8->input |= kChip8KeyPad1; break;
+    case SDLK_2: chip8->input |= kChip8KeyPad2; break;
+    case SDLK_3: chip8->input |= kChip8KeyPad3; break;
+    case SDLK_4: chip8->input |= kChip8KeyPadC; break;
+    case SDLK_q: chip8->input |= kChip8KeyPad4; break;
+    case SDLK_w: chip8->input |= kChip8KeyPad5; break;
+    case SDLK_e: chip8->input |= kChip8KeyPad6; break;
+    case SDLK_r: chip8->input |= kChip8KeyPadD; break;
+    case SDLK_a: chip8->input |= kChip8KeyPad7; break;
+    case SDLK_s: chip8->input |= kChip8KeyPad8; break;
+    case SDLK_d: chip8->input |= kChip8KeyPad9; break;
+    case SDLK_f: chip8->input |= kChip8KeyPadE; break;
+    case SDLK_z: chip8->input |= kChip8KeyPadA; break;
+    case SDLK_x: chip8->input |= kChip8KeyPad0; break;
+    case SDLK_c: chip8->input |= kChip8KeyPadB; break;
+    case SDLK_v: chip8->input |= kChip8KeyPadF; break;
+  }
+}
+// When the user relase his fingers from the keyboard the chip8 updates the 
+// input value
+void Chip8ProcessRelease(Chip8* chip8, SDL_Keycode input) {
+  printf("user released\n");
+  switch (input) {
+    case SDLK_1: chip8->input ^= kChip8KeyPad1; break;
+    case SDLK_2: chip8->input ^= kChip8KeyPad2; break;
+    case SDLK_3: chip8->input ^= kChip8KeyPad3; break;
+    case SDLK_4: chip8->input ^= kChip8KeyPadC; break;
+    case SDLK_q: chip8->input ^= kChip8KeyPad4; break;
+    case SDLK_w: chip8->input ^= kChip8KeyPad5; break;
+    case SDLK_e: chip8->input ^= kChip8KeyPad6; break;
+    case SDLK_r: chip8->input ^= kChip8KeyPadD; break;
+    case SDLK_a: chip8->input ^= kChip8KeyPad7; break;
+    case SDLK_s: chip8->input ^= kChip8KeyPad8; break;
+    case SDLK_d: chip8->input ^= kChip8KeyPad9; break;
+    case SDLK_f: chip8->input ^= kChip8KeyPadE; break;
+    case SDLK_z: chip8->input ^= kChip8KeyPadA; break;
+    case SDLK_x: chip8->input ^= kChip8KeyPad0; break;
+    case SDLK_c: chip8->input ^= kChip8KeyPadB; break;
+    case SDLK_v: chip8->input ^= kChip8KeyPadF; break;
+  }
+}
+
 // Helper Functions: for operations on register to register and memory reads
 
 void RegisterXBitwiseAndData(uint8_t* register_x, const uint8_t kData){
