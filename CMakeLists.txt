@@ -6,9 +6,10 @@ cmake_minimum_required(VERSION 3.8)
 find_package(SDL2 REQUIRED)
 find_package(SDL2_image REQUIRED)
 
-# For some reason, if I enable this, Cmake will not required any SDL2 version
-# There is nothing online that I can find which explains this bug
-# So I won't be using this function anymore.
+# for some reason, if I use the project function, CMake cannot find the version
+# of SD2 , even when explicitly written, so it is commented out until I find
+# out how to fix that.
+#
 # project ("chip8_engine")
 
 # Add source to this project's executable.
@@ -20,7 +21,7 @@ add_executable (chip8_engine
   "src/include/chip8_operators.h"       "src/chip8_operators.c"
   "src/include/sdl_config.h"            "src/sdl_config.c"
   "src/include/chip8_names.h"
-)
+ "src/include/chip8_emulation.h")
 
 # Include directory for header files
 target_include_directories(chip8_engine PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
@@ -33,4 +34,6 @@ if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET chip8_engine PROPERTY CXX_STANDARD 20)
 endif()
 
+# Move the resource folder into the exe directory
+file(COPY resources DESTINATION ${DST_DIR}/)
 # TODO: Add tests and install targets if needed
