@@ -130,6 +130,22 @@ void Chip8AddRegisterXByRegisterY_8xy4(Chip8* chip8, uint16_t memory){
 void Chip8SubRegisterXByRegisterY_8xy5(Chip8* chip8, uint16_t memory){
   Chip8RegisterToRegisterOperationFlag(chip8, memory, RegisterXMinusData);
 }
+// I chould not think of a good name for this function:
+//
+// This function checks if the least significant bit of Register X is 1, if it
+// is one the status register is set to 1, else, it's set to 0. Then Register X
+// is bit shifted by 1
+void Chip8SHR_8xy6(Chip8* chip8, uint16_t memory){
+  if (ReadFirstNibble(chip8->_register->general_perpose[ReadThirdNibble(memory)])
+      == 1) {
+    chip8->_register->status = 1;
+  }
+  else {
+    chip8->_register->status = 0;
+  }
+  // This is divison by 2!. This is how it's done in the Chip 8
+  chip8->_register->general_perpose[ReadThirdNibble(memory)] >> 1;
+}
 
 void Chip8Emulation(Chip8* chip8, uint16_t memory[]) {
 
@@ -155,9 +171,27 @@ void Chip8Emulation(Chip8* chip8, uint16_t memory[]) {
   }
 }
 
+void Chip8_SkipIfKeyIsPressed_Ex9E(Chip8* chip8, uint16_t memory){
+  if (chip8->_register->general_perpose[ReadThirdNibble(memory)] &
+    chip8->input != 0) {
+    chip8->_register->program_counter += 2;
+  }
+}
+
+void Chip8_SkipIfKeyIsNotPressed_ExA1(Chip8* chip8, uint16_t memory){
+  if (chip8->_register->general_perpose[ReadThirdNibble(memory)] &
+    chip8->input == 0) {
+    chip8->_register->program_counter += 2;
+  }
+}
+
 void Chip8RegisterEqualDelayTimer_Fx07(Chip8* chip8, uint16_t memory){
   chip8->_register->general_perpose[ReadThirdNibble(memory)] =
     chip8->_register->delay_timer;
+}
+// TODO: create a function that checks if the there was any input 
+void Chip8StoreKeyPressInRegisterX_Fx0A(Chip8* chip8, uint16_t memory){
+  chip8->_register->general_perpose[ReadThirdNibble(memory)] = chip8->input;
 }
 
 void Chip8SetSoundTimerToRegisterX_Fx18(Chip8* chip8, uint16_t memory)
@@ -184,6 +218,26 @@ void Chip8IndexRegisterFill_Fx65(Chip8*   chip8,
   chip8->_register->index += ReadThirdNibble(opcode) + 1;
 }
 
+void Chip8SHL_8xyE(Chip8* chip8, uint16_t memory){
+  if (ReadForthNibble(chip8->_register->general_perpose[ReadThirdNibble(memory)])
+    == 1) {
+    chip8->_register->status = 1;
+  }
+  else {
+    chip8->_register->status = 0;
+  }
+  // This is the power of 2!. This is how it's done in the Chip 8
+  chip8->_register->general_perpose[ReadThirdNibble(memory)] << 1;
+}
+
+void Chip8SkipIfRegisterXDoesNotEqualStatusRegister_9xy0(Chip8* chip8,
+                                                         uint16_t memory){
+  if (chip8->_register->general_perpose[ReadThirdNibble(memory)] !=
+      chip8->_register->status){
+    chip8->_register->program_counter += 2;
+  }
+}
+
 void Chip8_StoreMemoryInIndexRegister_Annn(Chip8* chip8, uint16_t opcode){
   chip8->_register->index = Read12bitFromWord(opcode);
 }
@@ -192,4 +246,9 @@ void Chip8JumpToLocationInMemoryPlusRegister0_Bnnn(Chip8*   chip8,
                                                    uint16_t memory){
   chip8->_register->program_counter = Read12bitFromWord(memory) +
     chip8->_register->general_perpose[0];
+}
+
+void Chip8_SetRegisterXToRandomByteANDMemory_Cxkk(Chip8* chip8, uint16_t memory){
+  chip8->_register->general_perpose[ReadThirdNibble(memory)] 
+    = Chip8GetRandom8bitNumber() & memory;
 }

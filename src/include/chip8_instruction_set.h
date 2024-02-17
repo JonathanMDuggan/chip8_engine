@@ -62,10 +62,11 @@ extern void Chip8BitwiseXorRegisterXByRegisterY_8xy3(Chip8*   chip8,
 
 extern void Chip8AddRegisterXByRegisterY_8xy4(Chip8* chip8, uint16_t memory);
 extern void Chip8SubRegisterXByRegisterY_8xy5(Chip8* chip8, uint16_t memory);
-extern void Chip8_8xy6(Chip8* chip8, uint16_t memory);
+extern void Chip8SHR_8xy6(Chip8* chip8, uint16_t memory);
 extern void Chip8_8xy7(Chip8* chip8, uint16_t memory);
-extern void Chip8_8xyE(Chip8* chip8, uint16_t memory);
-extern void Chip8_9xy0(Chip8* chip8, uint16_t memory);
+extern void Chip8SHL_8xyE(Chip8* chip8, uint16_t memory);
+extern void Chip8SkipIfRegisterXDoesNotEqualStatusRegister_9xy0(Chip8* chip8,
+                                                                uint16_t memory);
 extern void Chip8_StoreMemoryInIndexRegister_Annn(Chip8*   chip8,
                                                   uint16_t opcode);
 extern void Chip8JumpToLocationInMemoryPlusRegister0_Bnnn(Chip8*   chip8, 
@@ -74,7 +75,7 @@ extern void Chip8_SetRegisterXToRandomByteANDMemory_Cxkk(Chip8*   chip8,
                                                          uint16_t memory);
 extern void Chip8_Dxyn(Chip8* chip8, uint16_t memory);
 extern void Chip8_SkipIfKeyIsPressed_Ex9E(Chip8* chip8, uint16_t memory);
-extern void Chip8_ExA1(Chip8* chip8, uint16_t memory);
+extern void Chip8_SkipIfKeyIsNotPressed_ExA1(Chip8* chip8, uint16_t memory);
 
 extern void Chip8RegisterEqualDelayTimer_Fx07(Chip8* chip8, uint16_t memory);
 extern void Chip8StoreKeyPressInRegisterX_Fx0A(Chip8* chip8, uint16_t memory);

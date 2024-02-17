@@ -40,7 +40,7 @@ typedef struct {
 
   // Points to the 16th value in the general perpose array.
   // The 16th register or VF is used as a status register sometimes
-  uint8_t* status_register;
+  uint8_t* status;
   uint8_t  delay_timer;
   uint8_t  sound_timer;
 }Register;
@@ -58,9 +58,6 @@ typedef struct {
   // black you can just put the value into the SDL function without needing
   // to translate the CHIP-8 display output.
   uint32_t screen[kChip8ScreenLenght][kChip8ScreenHeight];
-
-  uint8_t fontset[kChip8FontSetSize];
-  uint8_t keyboard[kKeyboard];
 
   // This is a 16bit variable that stores bools of 16 inputs
   uint16_t input;

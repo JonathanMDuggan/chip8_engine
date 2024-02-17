@@ -111,7 +111,6 @@ uint8_t SDLInitialize(Chip8* chip8) {
 						break;
 					}
 			}
-		
 		}
 		SDL_Delay(2);
 		i++;

@@ -24,7 +24,7 @@ uint8_t Chip8ReadFile(Chip8* chip8, const char* file_name) {
     return EXIT_FAILURE;
   }
 
-  bytes_read = fread(chip8->memory[kChip8StackBase], 1,
+  bytes_read = fread(&chip8->memory[kChip8StackBase], 1,
                     sizeof(chip8->memory), file);
   fclose(file);
   if (bytes_read = 0) {

@@ -1,7 +1,8 @@
 #pragma once 
 #include"include/chip8_operators.h"
 #include"include/chip8_instruction_set.h"
-
+#include <stdlib.h>
+#include <time.h>
 // Note: ChatGPT wrote the nibble comments, they were too good to let down
 
 // Shifts the nibbles (4 bits) of a 16-bit hexadecimal number
@@ -62,22 +63,22 @@ void Chip8ProcessInput(Chip8* chip8, SDL_Keycode input){
 void Chip8ProcessRelease(Chip8* chip8, SDL_Keycode input) {
   printf("user released\n");
   switch (input) {
-    case SDLK_1: chip8->input ^= kChip8KeyPad1; break;
-    case SDLK_2: chip8->input ^= kChip8KeyPad2; break;
-    case SDLK_3: chip8->input ^= kChip8KeyPad3; break;
-    case SDLK_4: chip8->input ^= kChip8KeyPadC; break;
-    case SDLK_q: chip8->input ^= kChip8KeyPad4; break;
-    case SDLK_w: chip8->input ^= kChip8KeyPad5; break;
-    case SDLK_e: chip8->input ^= kChip8KeyPad6; break;
-    case SDLK_r: chip8->input ^= kChip8KeyPadD; break;
-    case SDLK_a: chip8->input ^= kChip8KeyPad7; break;
-    case SDLK_s: chip8->input ^= kChip8KeyPad8; break;
-    case SDLK_d: chip8->input ^= kChip8KeyPad9; break;
-    case SDLK_f: chip8->input ^= kChip8KeyPadE; break;
-    case SDLK_z: chip8->input ^= kChip8KeyPadA; break;
-    case SDLK_x: chip8->input ^= kChip8KeyPad0; break;
-    case SDLK_c: chip8->input ^= kChip8KeyPadB; break;
-    case SDLK_v: chip8->input ^= kChip8KeyPadF; break;
+    case SDLK_1: chip8->input &= ~kChip8KeyPad1; break;
+    case SDLK_2: chip8->input &= ~kChip8KeyPad2; break;
+    case SDLK_3: chip8->input &= ~kChip8KeyPad3; break;
+    case SDLK_4: chip8->input &= ~kChip8KeyPadC; break;
+    case SDLK_q: chip8->input &= ~kChip8KeyPad4; break;
+    case SDLK_w: chip8->input &= ~kChip8KeyPad5; break;
+    case SDLK_e: chip8->input &= ~kChip8KeyPad6; break;
+    case SDLK_r: chip8->input &= ~kChip8KeyPadD; break;
+    case SDLK_a: chip8->input &= ~kChip8KeyPad7; break;
+    case SDLK_s: chip8->input &= ~kChip8KeyPad8; break;
+    case SDLK_d: chip8->input &= ~kChip8KeyPad9; break;
+    case SDLK_f: chip8->input &= ~kChip8KeyPadE; break;
+    case SDLK_z: chip8->input &= ~kChip8KeyPadA; break;
+    case SDLK_x: chip8->input &= ~kChip8KeyPad0; break;
+    case SDLK_c: chip8->input &= ~kChip8KeyPadB; break;
+    case SDLK_v: chip8->input &= ~kChip8KeyPadF; break;
   }
 }
 
@@ -102,7 +103,7 @@ void RegisterXPlusData(uint8_t* register_x, const uint8_t kData, Chip8* chip8){
   uint16_t sum = *register_x + kData;
   if (sum > 255) {
     // The change is done in the instruction set function
-    *chip8->_register->status_register |= 1;
+    *chip8->_register->status |= 1;
   }
   // If the value didn't overflow, we pass the value and don't change anything
   // in the status register
@@ -112,7 +113,7 @@ void RegisterXMinusData(uint8_t* register_x, const uint8_t kData, Chip8 *chip8){
   int16_t difference = *register_x - kData;
   if (difference < 0) {
     // The change is done in the instruction set function
-    *chip8->_register->status_register |= 1;
+    *chip8->_register->status |= 1;
   }
   // If the value didn't overflow, we pass the value and don't change anything
   // in the status register
@@ -179,4 +180,8 @@ void Chip8MemoryReadFlag(Chip8* chip8, uint16_t memory,
   // determines that. 
   operation(&chip8->_register->general_perpose[ReadThirdNibble(memory)],
     ReadLoByteFromWord(memory),chip8);
+}
+uint8_t Chip8GetRandom8bitNumber() {
+  srand(time(0));
+  return (uint8_t)(rand() % 256);
 }

@@ -52,3 +52,4 @@ extern void Chip8RegisterToRegisterOperationFlag(Chip8* chip8, uint16_t memory,
 extern uint16_t Read12bitFromWord(uint16_t value);
 extern void Chip8ProcessInput(Chip8* chip8, SDL_Keycode input);
 extern void Chip8ProcessRelease(Chip8* chip8, SDL_Keycode input);
+extern uint8_t Chip8GetRandom8bitNumber();
