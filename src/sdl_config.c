@@ -9,11 +9,7 @@
 #include "include/chip8_processor.h"
 #include "include/chip8_operators.h"
 
-void sdlVideoStuff() {
-	printf("[+] Starting up SDL Video Stuff!\n");
-	return;
-}
-void SDLStart(Chip8* chip8) {
+void Chip8_SDLStart(Chip8* chip8) {
 	printf("[i] SDL Initializing.\n");
 	SDLInitialize(chip8);
 }
@@ -43,12 +39,12 @@ uint8_t SDLInitialize(Chip8* chip8) {
 	// the console
 	if (window == NULL) {
 		printf("[-] SDL window could not open: %s\n", SDL_GetError());
-		SDLQuit(window, renderer, chip8_engine_window_icon);
+		Chip8_SDLQuit(window, renderer, chip8_engine_window_icon);
 		return EXIT_FAILURE;
 	}
 	if (renderer == NULL) {
 		printf("[-] SDL renderer failed to initialize: %s\n", SDL_GetError());
-		SDLQuit(window, renderer, chip8_engine_window_icon);
+		Chip8_SDLQuit(window, renderer, chip8_engine_window_icon);
 		return EXIT_FAILURE;
 	}
 
@@ -102,12 +98,12 @@ uint8_t SDLInitialize(Chip8* chip8) {
 					printf("[i] Key was pressed: %s : %d\n",
 								SDL_GetKeyName(event.key.keysym.sym), event.key.keysym.sym);
 					if (strlen(SDL_GetKeyName(event.key.keysym.sym)) == 1) {
-						Chip8ProcessInput(chip8, event.key.keysym.sym);
+						Chip8_ProcessInput(chip8, event.key.keysym.sym);
 						break;
 					}
 				case SDL_KEYUP: 
 					if (strlen(SDL_GetKeyName(event.key.keysym.sym)) == 1) {
-						Chip8ProcessRelease(chip8, event.key.keysym.sym);
+						Chip8_ProcessRelease(chip8, event.key.keysym.sym);
 						break;
 					}
 			}
@@ -125,7 +121,7 @@ uint8_t SDLInitialize(Chip8* chip8) {
 	return 0;
 }
 
-void SDLQuit(SDL_Window* window, SDL_Renderer* readerer, SDL_Surface* surface) {
+void Chip8_SDLQuit(SDL_Window* window, SDL_Renderer* readerer, SDL_Surface* surface) {
 	SDL_DestroyRenderer(readerer);
 	SDL_DestroyWindow(window);
 	SDL_FreeSurface(surface);

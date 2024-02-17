@@ -3,7 +3,7 @@
 #pragma once
 #include <stdint.h>
 #include <stdio.h>
-enum Chip8Constants{
+enum Chip8_Constants {
   // Sizes of Registers and Memory
   kChip8MaxNumberOfGeneralPerposeRegisters = 16,
   kChip8MaxRAMSize = 4096, kChip8MaxStackSize = 16,
@@ -11,20 +11,22 @@ enum Chip8Constants{
   kChip8ScreenLenght = 64, kChip8ScreenHeight = 32, kChip8FontSetSize = 80,
 
   // General perpose registers 
-  kChip8V0 = 0, kChip8V1  = 1, kChip8V2  = 2, kChip8V3  = 3, kChip8V4  = 4,
-  kChip8V5 = 5, kChip8V6  = 6, kChip8V7  = 7, kChip8V8  = 8, kChip8V9  = 9,
+  kChip8V0 = 0, kChip8V1 = 1, kChip8V2 = 2, kChip8V3 = 3, kChip8V4 = 4,
+  kChip8V5 = 5, kChip8V6 = 6, kChip8V7 = 7, kChip8V8 = 8, kChip8V9 = 9,
   kChip8VA = 10, kChip8VB = 11, kChip8VD = 13, kChip8VE = 14, kChip8VF = 15,
 
   // Memory Locations
-  kChip8StackBase = 0x200, kChip8FontSetAddress = 0x00, kChipNothingSpace = 0x80, 
+  kChip8StackBase = 0x200, kChip8FontSetAddress = 0x00, kChipNothingSpace = 0x80,
   // Memory Space
   kChip8MaxROMSize = 0xDFE,
   // Input Output
-  kKeyboard = 16
+  kKeyboard = 16,
 
+  // program counter
+  kChip8NextInstruction = 2, kChip8SkipNextInstruction = 4
 };
 
-enum Chip8InputMask {
+enum Chip8_InputMask {
   kChip8KeyPad0 = 0x0001, kChip8KeyPad1 = 0x0002, kChip8KeyPad2 = 0x0004,
   kChip8KeyPad3 = 0x0008, kChip8KeyPad4 = 0x0010, kChip8KeyPad5 = 0x0020,
   kChip8KeyPad6 = 0x0040, kChip8KeyPad7 = 0x0080, kChip8KeyPad8 = 0x0100,
@@ -63,5 +65,5 @@ typedef struct {
   uint16_t input;
 }Chip8;
 
-extern void Chip8InitializeFontSet(Chip8* chip8);
-extern void Chip8InitializeRegisters(Chip8* chip8);
+extern void Chip8_InitializeFontSet(Chip8* chip8);
+extern void Chip8_InitializeRegisters(Chip8* chip8);

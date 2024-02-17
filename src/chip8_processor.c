@@ -2,7 +2,7 @@
 #include "include/chip8_processor.h"
 #include <string.h>
 
-void Chip8InitializeRegisters(Chip8* chip8){
+void Chip8_InitializeRegisters(Chip8* chip8){
   // Set all the general perpose register to 0
   memset(chip8->_register->general_perpose, 0, 
          sizeof(chip8->_register->general_perpose));
@@ -41,9 +41,9 @@ void Chip8InitializeRegisters(Chip8* chip8){
 // | Font Set Space   |
 // |                  |
 // +------------------+ 0x000
-void Chip8InitializeMemory(Chip8* chip8) {
+void Chip8_InitializeMemory(Chip8* chip8) {
   // Store the font set in the memory
-  Chip8InitializeFontSet(chip8);
+  Chip8_InitializeFontSet(chip8);
   // This is for the nothing space
   memset(&chip8->memory[kChipNothingSpace], 0, 0x180);
   // Set the inputs all to 0
@@ -51,7 +51,7 @@ void Chip8InitializeMemory(Chip8* chip8) {
 }
 
 // Sets the Chip8 font to the 04b_21 standard on runtime
-void Chip8InitializeFontSet(Chip8* chip8) {
+void Chip8_InitializeFontSet(Chip8* chip8) {
   size_t i;
   // Used the 04b_21 font for this emulator; 04b_21 is standardized and It's in
   // the public domain. Letters are from 0 to F. The Chip-8 doesn't have a
