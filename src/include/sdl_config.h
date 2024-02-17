@@ -10,13 +10,7 @@ typedef struct{
 typedef struct {
   Location location;
 }Mouse;
-extern void sdlVideoStuff();
-extern void SDLStart(Chip8* chip8);
+
+extern void Chip8_SDLStart(Chip8* chip8);
 extern uint8_t SDLInitialize(Chip8* chip8);
-extern uint8_t SDLCleanUp();
-extern void SDLUpdate();
-extern void SDLInput();
-extern void SDLRendrer(SDL_Renderer* renderer, SDL_Renderer* window);
-extern void SDLDraw();
-extern void SDLVideo();
-extern void SDLQuit(SDL_Window* window, SDL_Renderer* renderer, SDL_Surface* surface);
+extern void Chip8_SDLQuit(SDL_Window* window, SDL_Renderer* renderer, SDL_Surface* surface);

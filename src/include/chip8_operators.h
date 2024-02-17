@@ -7,49 +7,49 @@ enum NibbleBitMask {
 };
 
 // Bit manipulation functions
-extern inline uint16_t MoveNibbleRight(
+extern inline uint16_t Chip8_MoveNibbleRight(
   uint16_t value, uint8_t x_amount_of_places
 );
-extern inline uint8_t ReadLoByteFromWord(uint16_t value);
-extern inline uint8_t ReadForthNibble(uint16_t value);
-extern inline uint8_t ReadThirdNibble(uint16_t value);
-extern inline uint8_t ReadSecondNibble(uint16_t value);
-extern inline uint8_t ReadFirstNibble(uint16_t value);
+extern inline uint8_t Chip8_ReadLoByteFromWord(uint16_t value);
+extern inline uint8_t Chip8_ReadForthNibble(uint16_t value);
+extern inline uint8_t Chip8_ReadThirdNibble(uint16_t value);
+extern inline uint8_t Chip8_ReadSecondNibble(uint16_t value);
+extern inline uint8_t Chip8_ReadFirstNibble(uint16_t value);
 
 // Bitwise Operations
 
-extern void RegisterXBitwiseAndData(uint8_t*      register_x,
+extern void Chip8_RegisterXBitwiseAndData(uint8_t*      register_x,
                                     const uint8_t kData);
 
-extern void RegisterXBitwiseXorData(uint8_t*      register_x,
+extern void Chip8_RegisterXBitwiseXorData(uint8_t*      register_x,
                                     const uint8_t kData);
 
-extern void RegisterXBitwiseOrData(uint8_t*      register_x,
+extern void Chip8_RegisterXBitwiseOrData(uint8_t*      register_x,
                                    const uint8_t kData);
 
-extern void RegisterXEqualData(uint8_t*      register_x,
+extern void Chip8_RegisterXEqualData(uint8_t*      register_x,
                                const uint8_t kData);
 // Operations
 
-extern void RegisterXPlusData(uint8_t*      register_x,
+extern void Chip8_RegisterXPlusData(uint8_t*      register_x,
                               const uint8_t kData,
                               Chip8*        chip8);
 
-extern void RegisterXMinusData(uint8_t*      register_x,
+extern void Chip8_RegisterXMinusData(uint8_t*      register_x,
                                const uint8_t kData,
                                Chip8*        chip8);
 // Higher Order Functions:
 
-extern void Chip8RegisterToRegisterOperation(Chip8* chip8, uint16_t memory,
+extern void Chip8_RegisterToRegisterOperation(Chip8* chip8, uint16_t memory,
                                              void(*operation)(uint8_t*, uint8_t));
-extern void Chip8MemoryRead(Chip8* chip8, uint16_t memory,
+extern void Chip8_MemoryRead(Chip8* chip8, uint16_t memory,
                             void(*operation)(uint8_t*, uint8_t));
-void Chip8MemoryReadFlag(Chip8* chip8, uint16_t memory,
+void Chip8_MemoryReadFlag(Chip8* chip8, uint16_t memory,
   void(*operation)(uint8_t*, const uint8_t, Chip8*));
-extern void Chip8RegisterToRegisterOperationFlag(Chip8* chip8, uint16_t memory,
+extern void Chip8_RegisterToRegisterOperationFlag(Chip8* chip8, uint16_t memory,
   void(*operation)(uint8_t*, const uint8_t, Chip8*));
 // Random Number Generators
-extern uint16_t Read12bitFromWord(uint16_t value);
-extern void Chip8ProcessInput(Chip8* chip8, SDL_Keycode input);
-extern void Chip8ProcessRelease(Chip8* chip8, SDL_Keycode input);
-extern uint8_t Chip8GetRandom8bitNumber();
+extern uint16_t Chip8_Read12bitFromWord(uint16_t value);
+extern void Chip8_ProcessInput(Chip8* chip8, SDL_Keycode input);
+extern void Chip8_ProcessRelease(Chip8* chip8, SDL_Keycode input);
+extern uint8_t Chip8_GetRandom8bitNumber();

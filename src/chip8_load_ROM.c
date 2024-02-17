@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 // Reads Chip8 ROM from OS
-uint8_t Chip8ReadFile(Chip8* chip8, const char* file_name) {
+uint8_t Chip8_ReadFile(Chip8* chip8, const char* file_name) {
   uint64_t file_size = 0;
   size_t bytes_read  = 0;
   // NOTE TO THE PROGRAMMER: 

@@ -10,9 +10,9 @@ int main(int argc, char** argv){
 	Chip8 chip8;
 	Register _register;
 	chip8._register = &_register;
-	Chip8InitializeRegisters(&chip8);
-	Chip8InitializeMemory(&chip8);
-	Chip8ReadFile(&chip8, "ROM/Bowling [Gooitzen van der Wal].ch8");
-	SDLStart(&chip8);
+	Chip8_InitializeRegisters(&chip8);
+	Chip8_InitializeMemory(&chip8);
+	Chip8_ReadFile(&chip8, "ROM/Bowling [Gooitzen van der Wal].ch8");
+	Chip8_SDLStart(&chip8);
 	return EXIT_SUCCESS;
 }
