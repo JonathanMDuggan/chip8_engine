@@ -17,3 +17,6 @@ uint8_t Chip8EmulationMainLoop(const char* file_name) {
   }
   // Push the opcodes function pointers in memory
 }
+uint8_t Chip8Emulation() {
+
+}
