@@ -1,25 +1,24 @@
 #pragma once
 #include "chip8_processor.h"
-// Yes, I broke the convention by naming enums without the k at the start
+
 enum Chip8_Opcodes {
   kSysAddr_0x000 = 0x000, kJPaddr_0x100 = 0x100, kCLS_0x00E0 = 0x00E0,
-
+  // Opcodes which start with the number 0
+  CLS = 0xE0,
+  RET = 0xEE,
+  // Opcodes where the first number is between 1 to 7
+  JPaddr   = 1, CALLaddr  = 2, SEVxbyte  = 3, SNEVxbyte = 4, SEVxVy = 5,
+  LDVxbyte = 6, ADDVxbyte = 7,
   // Opcodes which start with the number 8
-  LDVxVy = 0,
-  ORVxVy = 1,
-  ANDVxVy = 2,
-  XORVxVy = 3,
-  //kChip8_VxVy_ = 2,
-  //kChip8_VxVy_ = 2,
-  //kChip8_VxVy_ = 2,
-  //kChip8_VxVy_ = 2,
-  //kChip8_VxVy_ = 2,
-  //kChip8_VxVy_ = 2,
-  //kChip8_VxVy_ = 2,
-  //kChip8_VxVy_ = 2,
-  //kChip8_VxVy_ = 2,
-  //kChip8_VxVy_ = 2,
-  //kChip8_VxVy_ = 2
+  kLDVxVy  = 0, kORVxVy  = 1, kANDVxVy  = 2, kXORVxVy = 3,   kADDVxVy = 4,
+  kSUBVxVy = 5, kSHRVxVy = 6, kSUBNVxVy = 7, kSHLVxVy = 0xE,
+  // Opcodes between 9 and D
+  kSNEVxVy       = 0x9, kLDIaddr = 0xA, kJPV0addr = 0xB, kRNDVxbyte = 0xC,
+  kDRWVxVyNibble = 0xD, kE = 0xE, kSKPVx = 0x9E, SKNPVx = 0xA1,
+  // Opcodes which start with the number F
+  kLDVxDT = 0x07, kLDVxK  = 0x0A, kLDDTVx = 0x15, kLDSTVx = 0x18,
+  kADDIVx = 0x1E, kLDFVx  = 0x29, kLDBVx  = 0x33, kLDIVx  = 0x55,
+  kLDVxI  = 0x65
 };
 
 // About the Chip-8 Instrcution set
@@ -49,6 +48,7 @@ enum Chip8_Opcodes {
 // Therefore if you see the function 'Chip8_AddMemoryToRegisterX_7xkk' it means
 // Add the value at 'kk' to Register 'x' 
 
+// extern void Chip8_JumpToLocation_0nnn(chip8* chip8, uint16_t memory);
 extern void Chip8_ClearDisplay_00E0(Chip8* chip8, uint16_t memory);
 extern void Chip8_Return_00EE(Chip8* chip8, uint16_t memory);
 extern void Chip8_JumpToLocation_1nnn(Chip8* chip8, uint16_t memory);
@@ -107,6 +107,4 @@ extern void Chip8_Fx55(Chip8* chip8, uint16_t memory);
 // Fills all general perpose registers with memory addresses starting at the
 // memory address stored in the index register, then sets the index register
 // to X
-extern void Chip8_IndexRegisterFill_Fx65(Chip8*   chip8,
-                                        uint16_t memory[],
-                                        uint16_t opcode);
+void Chip8_IndexRegisterFill_Fx65(Chip8* chip8, uint16_t memory[], uint16_t opcode);
