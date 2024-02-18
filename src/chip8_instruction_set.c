@@ -163,13 +163,13 @@ void Chip8_ShiftRegisterXRight_8xy6(Chip8* chip8, uint16_t memory){
     chip8->_register->status = 0;
   }
   // This is divison by 2!. This is how it's done in the Chip 8
-  chip8->_register->general_perpose[Chip8_ReadThirdNibble(memory)] >> 1;
+  chip8->_register->general_perpose[Chip8_ReadThirdNibble(memory)] >>= 1;
   chip8->_register->program_counter += kChip8NextInstruction;
 }
 
 void Chip8_SkipIfKeyIsPressed_Ex9E(Chip8* chip8, uint16_t memory){
-  if (chip8->_register->general_perpose[Chip8_ReadThirdNibble(memory)] &
-    chip8->input != 0) {
+  if ((chip8->_register->general_perpose[Chip8_ReadThirdNibble(memory)] &
+    chip8->input) != 0) {
     chip8->_register->program_counter += kChip8SkipNextInstruction;
     return;
   }
@@ -234,7 +234,7 @@ void Chip8_ShiftRegisterXLeft_8xyE(Chip8* chip8, uint16_t memory){
     chip8->_register->status = 0;
   }
   // This is the power of 2!. This is how it's done in the Chip 8
-  chip8->_register->general_perpose[Chip8_ReadThirdNibble(memory)] << 1;
+  chip8->_register->general_perpose[Chip8_ReadThirdNibble(memory)] <<= 1;
   chip8->_register->program_counter += kChip8NextInstruction;
 }
 

@@ -183,5 +183,5 @@ void Chip8_MemoryReadFlag(Chip8* chip8, uint16_t memory,
 }
 uint8_t Chip8_GetRandom8bitNumber() {
   srand(time(0));
-  return (uint8_t)(rand() % 256);
+  return (rand() % 256);
 }
