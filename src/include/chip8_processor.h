@@ -34,7 +34,7 @@ enum Chip8_InputMask {
   kChip8KeyPadC = 0x1000, kChip8KeyPadD = 0x2000, kChip8KeyPadE = 0x4000,
   kChip8KeyPadF = 0x8000
 };
-typedef struct {
+typedef struct Register{
   uint16_t index;
   uint16_t program_counter;
   uint8_t  stack_pointer;
@@ -47,7 +47,7 @@ typedef struct {
   uint8_t  sound_timer;
 }Register;
 
-typedef struct {
+typedef struct Chip8{
   uint16_t opcode;
   Register* _register;
   uint16_t stack[kChip8MaxStackSize];
