@@ -208,7 +208,7 @@ void Chip8_SetSoundTimerToRegisterX_Fx18(Chip8* chip8, uint16_t memory)
 
 void Chip8_IndexPlusRegisterX_Fx1E(Chip8* chip8, uint16_t memory){
   chip8->_register->index = chip8->_register->general_perpose[
-                                       Chip8_ReadThirdNibble(memory)
+                            Chip8_ReadThirdNibble(memory)
   ];
 }
 // Fills all general perpose registers with memory addresses starting at the

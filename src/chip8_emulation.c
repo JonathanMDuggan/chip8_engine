@@ -4,8 +4,11 @@
 #include "include/chip8_load_ROM.h"
 #include "include/chip8_operators.h"
 #include "include/chip8_instruction_set.h"
+#include "include/chip8_names.h"
 #include <stdio.h>
 #include <stdlib.h>
+
+
 uint8_t Chip8_EmulationMainLoop(Chip8* chip8, const char* file_name) {
   uint16_t opcode = 0;
 
@@ -51,6 +54,7 @@ void Chip8_OpcodesStartsWith0(Chip8* chip8, uint16_t opcode) {
     // If for some reason the ROM uses the old jump to location opcode
     // call this function instead
   default:  Chip8_JumpToLocation_1nnn(chip8, opcode);
+    CHIP8_LOG_INFO("ROM used discontinued opcode: %x", opcode);
     break;
   }
 }

@@ -1,6 +1,7 @@
 #pragma once 
 #include"include/chip8_operators.h"
 #include"include/chip8_instruction_set.h"
+#include"include/chip8_names.h"
 #include <stdlib.h>
 #include <time.h>
 // Note: ChatGPT wrote the nibble comments, they were too good to let down
@@ -38,7 +39,6 @@ inline uint16_t Chip8_Read12bitFromWord(uint16_t value) {
 // Gets the input from the keyboard and changes the input value
 // in the Chip8
 void Chip8_ProcessInput(Chip8* chip8, SDL_Keycode input){
-  printf("user input\n");
   switch (input) {
     case SDLK_1: chip8->input |= kChip8KeyPad1; break;
     case SDLK_2: chip8->input |= kChip8KeyPad2; break;
@@ -57,11 +57,11 @@ void Chip8_ProcessInput(Chip8* chip8, SDL_Keycode input){
     case SDLK_c: chip8->input |= kChip8KeyPadB; break;
     case SDLK_v: chip8->input |= kChip8KeyPadF; break;
   }
+  CHIP8_LOG_SUCCESS("Input: 0x%04x\n", chip8->input);
 }
 // When the user relase his fingers from the keyboard the chip8 updates the 
 // input value
 void Chip8_ProcessRelease(Chip8* chip8, SDL_Keycode input) {
-  printf("user released\n");
   switch (input) {
     case SDLK_1: chip8->input &= ~kChip8KeyPad1; break;
     case SDLK_2: chip8->input &= ~kChip8KeyPad2; break;
@@ -80,6 +80,7 @@ void Chip8_ProcessRelease(Chip8* chip8, SDL_Keycode input) {
     case SDLK_c: chip8->input &= ~kChip8KeyPadB; break;
     case SDLK_v: chip8->input &= ~kChip8KeyPadF; break;
   }
+  CHIP8_LOG_SUCCESS("Input: 0x%04x\n", chip8->input);
 }
 
 // Helper Functions: for operations on register to register and memory reads
