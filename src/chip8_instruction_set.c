@@ -69,8 +69,8 @@ void Chip8_Call_2nnn(Chip8* chip8, uint16_t memory){
   // overide the address where we came from
   chip8->_register->program_counter += kChip8NextInstruction;
 }
-  void Chip8_SkipNextInstrucionIfRegisterXEqualMemory_3xkk(Chip8* chip8,
-                                                          uint16_t memory){
+void Chip8_SkipNextInstrucionIfRegisterXEqualMemory_3xkk(Chip8* chip8,
+                                                         uint16_t memory) {
     if (
       chip8->_register->general_perpose[Chip8_ReadThirdNibble(memory)] ==
       Chip8_ReadLoByteFromWord(memory)
@@ -80,9 +80,8 @@ void Chip8_Call_2nnn(Chip8* chip8, uint16_t memory){
     }
     chip8->_register->program_counter += kChip8NextInstruction;
   }
-void Chip8_SkipNextInstrucionIfRegisterXDoesNotEqualMemory_4xkk(Chip8* chip8,
-                                                               uint16_t
-                                                               memory){
+  void Chip8_SkipNextInstrucionIfRegisterXDoesNotEqualMemory_4xkk(
+      Chip8* chip8, uint16_t memory) {
   if (
     chip8->_register->general_perpose[Chip8_ReadThirdNibble(memory)] !=
     Chip8_ReadLoByteFromWord(memory)
@@ -93,7 +92,7 @@ void Chip8_SkipNextInstrucionIfRegisterXDoesNotEqualMemory_4xkk(Chip8* chip8,
   chip8->_register->program_counter += kChip8NextInstruction;
 }
 void Chip8_SkipNextInstrucionIfRegisterXEqualRegisterY_5xy0(Chip8* chip8, 
-                                                           uint16_t memory){
+                                                           uint16_t memory) {
   if (
     chip8->_register->general_perpose[Chip8_ReadThirdNibble(memory)] ==
     chip8->_register->general_perpose[Chip8_ReadSecondNibble(memory)]
@@ -103,7 +102,7 @@ void Chip8_SkipNextInstrucionIfRegisterXEqualRegisterY_5xy0(Chip8* chip8,
   }
   chip8->_register->program_counter += kChip8NextInstruction;
 }
-void Chip8_LoadMemoryToRegisterX_6xkk(Chip8* chip8, uint16_t memory){
+void Chip8_LoadMemoryToRegisterX_6xkk(Chip8* chip8, uint16_t memory) {
   Chip8_MemoryRead(chip8, memory, Chip8_RegisterXEqualData);
   chip8->_register->program_counter++;
 }
@@ -122,31 +121,35 @@ void Chip8_LoadRegisterYToRegsiterX_8xy0(Chip8* chip8, uint16_t memory) {
 // Bitwise register operations opcodes
 
 // RegisterX OR= RegisterY
-void Chip8_BitwiseOrRegisterXByRegisterY_8xy1(Chip8* chip8, uint16_t memory){
-  Chip8_RegisterToRegisterOperation(chip8, memory, Chip8_RegisterXBitwiseOrData);
+void Chip8_BitwiseOrRegisterXByRegisterY_8xy1(Chip8* chip8, uint16_t memory) {
+  Chip8_RegisterToRegisterOperation(chip8, memory,
+                                    Chip8_RegisterXBitwiseOrData);
   chip8->_register->program_counter += kChip8NextInstruction;
 }
 // RegisterX AND= RegisterY
-void Chip8_BitwiseAndRegisterXByRegisterY_8xy2(Chip8* chip8, uint16_t memory){
-  Chip8_RegisterToRegisterOperation(chip8, memory, Chip8_RegisterXBitwiseAndData);
+void Chip8_BitwiseAndRegisterXByRegisterY_8xy2(Chip8* chip8, uint16_t memory) {
+  Chip8_RegisterToRegisterOperation(chip8, memory,
+                                    Chip8_RegisterXBitwiseAndData);
   chip8->_register->program_counter += kChip8NextInstruction;
 }
 // RegisterX XOR= RegisterY
-void Chip8_BitwiseXorRegisterXByRegisterY_8xy3(Chip8* chip8, uint16_t memory){
-  Chip8_RegisterToRegisterOperation(chip8, memory, Chip8_RegisterXBitwiseXorData);
+void Chip8_BitwiseXorRegisterXByRegisterY_8xy3(Chip8* chip8, uint16_t memory) {
+  Chip8_RegisterToRegisterOperation(chip8, memory,
+                                    Chip8_RegisterXBitwiseXorData);
   chip8->_register->program_counter += kChip8NextInstruction;
 }
 
 // Operators on registers opcodes
 
 // RegisterX += RegisterY
-void Chip8_AddRegisterXByRegisterY_8xy4(Chip8* chip8, uint16_t memory){
+void Chip8_AddRegisterXByRegisterY_8xy4(Chip8* chip8, uint16_t memory) {
   Chip8_RegisterToRegisterOperationFlag(chip8, memory, Chip8_RegisterXPlusData);
   chip8->_register->program_counter += kChip8NextInstruction;
 }
 // RegisterX -= RegisterY
 void Chip8_SubRegisterXByRegisterY_8xy5(Chip8* chip8, uint16_t memory){
-  Chip8_RegisterToRegisterOperationFlag(chip8, memory, Chip8_RegisterXMinusData);
+  Chip8_RegisterToRegisterOperationFlag(chip8, memory,
+                                        Chip8_RegisterXMinusData);
   chip8->_register->program_counter += kChip8NextInstruction;
 }
 // I chould not think of a good name for this function:
@@ -167,18 +170,53 @@ void Chip8_ShiftRegisterXRight_8xy6(Chip8* chip8, uint16_t memory){
   chip8->_register->program_counter += kChip8NextInstruction;
 }
 
+void Chip8_SubtractRegisterYbyRegisterX_8xy7(Chip8* chip8, uint16_t memory) {
+  if (chip8->_register->general_perpose[Chip8_ReadThirdNibble(memory)] >
+      chip8->_register->general_perpose[Chip8_ReadSecondNibble(memory)]) {
+    chip8->_register->status = 1;
+  } else {
+    chip8->_register->status = 0;
+  }
+  chip8->_register->general_perpose[Chip8_ReadThirdNibble(memory)] =
+      chip8->_register->general_perpose[Chip8_ReadSecondNibble(memory)] -
+      chip8->_register->general_perpose[Chip8_ReadThirdNibble(memory)];
+  chip8->_register->program_counter += kChip8NextInstruction;
+}
+
+// I understand I could of created a for loop which bit shifted a word by one
+// every index, but I don't care.
+
 void Chip8_SkipIfKeyIsPressed_Ex9E(Chip8* chip8, uint16_t memory){
-  if ((chip8->_register->general_perpose[Chip8_ReadThirdNibble(memory)] &
-    chip8->input) != 0) {
+  uint16_t chip8_input_lookup_table[kKeyboard] = {
+      kChip8KeyPad0, kChip8KeyPad1, kChip8KeyPad2, kChip8KeyPad3,
+      kChip8KeyPad4, kChip8KeyPad5, kChip8KeyPad6, kChip8KeyPad7,
+      kChip8KeyPad8, kChip8KeyPad9, kChip8KeyPadA, kChip8KeyPadB,
+      kChip8KeyPadC, kChip8KeyPadE, kChip8KeyPadF};
+
+  if (chip8_input_lookup_table
+          [chip8->_register->general_perpose[Chip8_ReadThirdNibble(memory)]] &
+      chip8->input != 0) {
+
     chip8->_register->program_counter += kChip8SkipNextInstruction;
     return;
   }
   chip8->_register->program_counter += kChip8NextInstruction;
 }
 
+// I understand I could of created a for loop which bit shifted a word by one
+// every index, but I don't care. 
+
 void Chip8_SkipIfKeyIsNotPressed_ExA1(Chip8* chip8, uint16_t memory){
-  if (chip8->_register->general_perpose[Chip8_ReadThirdNibble(memory)] &
-    chip8->input == 0) {
+  uint16_t chip8_input_lookup_table[kKeyboard] = {
+      kChip8KeyPad0, kChip8KeyPad1, kChip8KeyPad2, kChip8KeyPad3,
+      kChip8KeyPad4, kChip8KeyPad5, kChip8KeyPad6, kChip8KeyPad7,
+      kChip8KeyPad8, kChip8KeyPad9, kChip8KeyPadA, kChip8KeyPadB,
+      kChip8KeyPadC, kChip8KeyPadE, kChip8KeyPadF};
+
+  if (chip8_input_lookup_table
+          [chip8->_register->general_perpose[Chip8_ReadThirdNibble(memory)]] &
+      chip8->input == 0) {
+
     chip8->_register->program_counter += kChip8SkipNextInstruction;
     return;
   }
@@ -194,23 +232,49 @@ void Chip8_RegisterEqualDelayTimer_Fx07(Chip8* chip8, uint16_t memory){
 void Chip8_StoreKeyPressInRegisterX_Fx0A(Chip8* chip8, uint16_t memory){
   // If input = 0, that means no keys are pressed during at the function call
   if (chip8->input != 0) {
-    chip8->_register->general_perpose[Chip8_ReadThirdNibble(memory)] = chip8->input;
+    chip8->_register->general_perpose[Chip8_ReadThirdNibble(memory)] =
+        chip8->input;
     chip8->_register->program_counter += kChip8NextInstruction;
   }
 }
 
-void Chip8_SetSoundTimerToRegisterX_Fx18(Chip8* chip8, uint16_t memory)
-{
-  chip8->_register->sound_timer = 
-    chip8->_register->general_perpose[Chip8_ReadThirdNibble(memory)];
+void Chip8_Fx15(Chip8* chip8, uint16_t memory) {
+  chip8->_register->delay_timer =
+      chip8->_register->general_perpose[Chip8_ReadThirdNibble(memory)];
+  chip8->_register->program_counter += kChip8NextInstruction;
+}
+
+void Chip8_SetSoundTimerToRegisterX_Fx18(Chip8* chip8, uint16_t memory){
+  chip8->_register->sound_timer =
+      chip8->_register->general_perpose[Chip8_ReadThirdNibble(memory)];
   chip8->_register->program_counter += kChip8NextInstruction;
 }
 
 void Chip8_IndexPlusRegisterX_Fx1E(Chip8* chip8, uint16_t memory){
-  chip8->_register->index = chip8->_register->general_perpose[
-                            Chip8_ReadThirdNibble(memory)
-  ];
+  chip8->_register->index +=
+      chip8->_register->general_perpose[Chip8_ReadThirdNibble(memory)];
+  chip8->_register->program_counter += kChip8NextInstruction;
 }
+
+void Chip8_IndexEqualsRegisterX_Fx29(Chip8* chip8, uint16_t memory) {
+  chip8->_register->index =
+      chip8->_register->general_perpose[Chip8_ReadThirdNibble(memory)];
+  chip8->_register->program_counter += kChip8NextInstruction;
+}
+
+void Chip8_BCDConversion_Fx33(Chip8* chip8, uint16_t memory[],
+                              uint16_t opcode) {
+  uint8_t register_x =
+      chip8->_register->general_perpose[Chip8_ReadThirdNibble(opcode)];
+
+  for (uint8_t i = 2; i != 255; i--) {
+    memory[chip8->_register->index + i] = register_x % 10;
+    register_x /= 10;
+  }
+
+  chip8->_register->program_counter += kChip8NextInstruction;
+}
+
 // Fills all general perpose registers with memory addresses starting at the
 // memory address stored in the index register, then add  X + 1 to the
 // index register
@@ -218,9 +282,9 @@ void Chip8_IndexRegisterFill_Fx65(Chip8*   chip8,
                                  uint16_t memory[], 
                                  uint16_t opcode){
   size_t i;
-  for (i = 0; i < kChip8MaxNumberOfGeneralPerposeRegisters; i++){
+  for (i = 0; i < kChip8MaxNumberOfGeneralPerposeRegisters; i++)
     chip8->_register->general_perpose[i] = memory[chip8->_register->index + i];
-  }
+  
   chip8->_register->index += Chip8_ReadThirdNibble(opcode) + 1;
   chip8->_register->program_counter += kChip8NextInstruction;
 }
@@ -259,8 +323,16 @@ void Chip8_JumpToLocationInMemoryPlusRegister0_Bnnn(Chip8*   chip8,
     chip8->_register->general_perpose[0];
 }
 
-void Chip8_SetRegisterXToRandomByteANDMemory_Cxkk(Chip8* chip8, uint16_t memory){
+void Chip8_SetRegisterXToRandomByteANDMemory_Cxkk(Chip8* chip8,
+                                                  uint16_t memory) {
   chip8->_register->general_perpose[Chip8_ReadThirdNibble(memory)] 
     = Chip8_GetRandom8bitNumber() & memory;
   chip8->_register->program_counter += kChip8NextInstruction;
+}
+void Chip8_Fx55(Chip8* chip8, uint16_t memory) {
+  printf("Haven't done anything yet: Fx55");
+}
+
+void Chip8_Display_Dxyn(Chip8* chip8, uint16_t memory) {
+  printf("Haven't done anything yet: Dxyn");
 }

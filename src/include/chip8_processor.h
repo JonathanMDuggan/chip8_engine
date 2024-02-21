@@ -67,3 +67,4 @@ typedef struct Chip8{
 
 extern void Chip8_InitializeFontSet(Chip8* chip8);
 extern void Chip8_InitializeRegisters(Chip8* chip8);
+extern void Chip8_InitializeMemory(Chip8* chip8);

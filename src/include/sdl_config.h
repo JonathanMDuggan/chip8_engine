@@ -11,12 +11,12 @@ typedef struct Mouse{
   Location location;
 }Mouse;
 
-typedef struct Display {
+typedef struct SDL {
   SDL_Window* window;
   SDL_Surface* surface;
   SDL_Renderer* renderer;
-}Display;
+}SDL;
 
 extern void Chip8_SDLStart(Chip8* chip8);
-extern uint8_t SDLInitialize(Chip8* chip8);
-extern void Chip8_SDLQuit(SDL_Window* window, SDL_Renderer* renderer, SDL_Surface* surface);
+extern uint8_t Chip8_SDLInitialize(Chip8* chip8);
+extern void Chip8_SDLQuit(SDL* sdl);

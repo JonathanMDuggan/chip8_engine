@@ -4,18 +4,10 @@
 #include <SDL.h>
 #include <ctype.h>
 #include "include/chip8_processor.h"
-#include "include/chip8_instruction_set.h"
-#include "include/sdl_config.h"
 #include "include/chip8_names.h"
+#include "include/chip8_emulation.h"
 int main(int argc, char** argv){
   CHIP8_LOG_INFO("Launching Chip8 Engine in _DEBUG mode!\n");
-  Chip8 chip8;
-  Register _register;
-  chip8._register = &_register;
-  Chip8_InitializeRegisters(&chip8);
-  Chip8_InitializeMemory(&chip8);
-  Chip8_ReadFile(&chip8, "ROM/Bowling [Gooitzen van der Wal].ch8");
-
-  Chip8_SDLStart(&chip8);
+  Chip8_Emulate("ROM/IBM Logo.ch8");
   return EXIT_SUCCESS;
 } 

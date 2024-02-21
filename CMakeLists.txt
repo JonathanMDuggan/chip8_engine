@@ -21,7 +21,7 @@ add_executable (chip8_engine
   "src/include/chip8_operators.h"       "src/chip8_operators.c"
   "src/include/sdl_config.h"            "src/sdl_config.c"
   "src/include/chip8_names.h"
- "src/include/chip8_emulation.h")
+  "src/include/chip8_emulation.h"       "src/chip8_emulation.c")
 
 # Include directory for header files
 target_include_directories(chip8_engine PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
