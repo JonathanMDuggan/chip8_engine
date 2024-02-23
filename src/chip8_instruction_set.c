@@ -36,6 +36,7 @@
 //
 
 // Set the display memory to zero
+
 void Chip8_ClearDisplay_00E0(Chip8* chip8, uint16_t memory){
   memset(chip8->screen, 0, sizeof(chip8->screen));
   chip8->_register->program_counter += kChip8NextInstruction;
@@ -104,7 +105,7 @@ void Chip8_SkipNextInstrucionIfRegisterXEqualRegisterY_5xy0(Chip8* chip8,
 }
 void Chip8_LoadMemoryToRegisterX_6xkk(Chip8* chip8, uint16_t memory) {
   Chip8_MemoryRead(chip8, memory, Chip8_RegisterXEqualData);
-  chip8->_register->program_counter++;
+  chip8->_register->program_counter += kChip8NextInstruction;
 }
 
 void Chip8_AddMemoryToRegisterX_7xkk(Chip8* chip8, uint16_t memory) {
@@ -335,4 +336,12 @@ void Chip8_Fx55(Chip8* chip8, uint16_t memory) {
 
 void Chip8_Display_Dxyn(Chip8* chip8, uint16_t memory) {
   printf("Haven't done anything yet: Dxyn");
+}
+
+// The memory parameter is here because almost all function are acessed by
+// pointer through an array, and by default all data is sent via chip8 and 
+// memory, if this function didn't have memory in it's parameters, the program
+// will crash
+void Chip8_NOP(Chip8* chip8, uint16_t memory) {
+  chip8->_register->program_counter += kChip8NextInstruction;
 }

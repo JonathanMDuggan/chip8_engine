@@ -1,6 +1,8 @@
 #pragma once
+#include "chip8_names.h"
 #include "chip8_processor.h"
-
+#include <Windows.h>
+#include <stdint.h>
 enum Chip8_Opcodes {
   kSysAddr_0x000 = 0x000, kJPaddr_0x100 = 0x100, kCLS_0x00E0 = 0x00E0,
   // Opcodes which start with the number 0
@@ -13,13 +15,22 @@ enum Chip8_Opcodes {
   kLDVxVy  = 0, kORVxVy  = 1, kANDVxVy  = 2, kXORVxVy = 3,   kADDVxVy = 4,
   kSUBVxVy = 5, kSHRVxVy = 6, kSUBNVxVy = 7, kSHLVxVy = 0xE,
   // Opcodes between 9 and D
-  kSNEVxVy       = 0x9, kLDIaddr = 0xA, kJPV0addr = 0xB, kRNDVxbyte = 0xC,
-  kDRWVxVyNibble = 0xD, kE = 0xE, kSKPVx = 0x9E, SKNPVx = 0xA1,
+  kSNEVxVy       = 0x9, kLDIaddr = 0xA, kJPV0addr = 0xB,  kRNDVxbyte = 0xC,
+  kDRWVxVyNibble = 0xD, kE       = 0xE, kSKPVx    = 0x9E, SKNPVx     = 0xA1,
   // Opcodes which start with the number F
-  kLDVxDT = 0x07, kLDVxK  = 0x0A, kLDDTVx = 0x15, kLDSTVx = 0x18,
-  kADDIVx = 0x1E, kLDFVx  = 0x29, kLDBVx  = 0x33, kLDIVx  = 0x55,
-  kLDVxI  = 0x65
+  kLDVxDT = 0x07, kLDVxK = 0x0A, kLDDTVx = 0x15, kLDSTVx = 0x18,
+  kADDIVx = 0x1E, kLDFVx = 0x29, kLDBVx  = 0x33, kLDIVx  = 0x55,
+  kLDVxI  = 0x65,
+
+  kNOP = 0xC
 };
+
+typedef void (*Chip8_OpcodeFunction)(Chip8*, uint16_t);
+
+typedef struct Chip8_OpcodeHandler{
+  Chip8_OpcodeFunction function;
+  const char* kChip8Assembly;
+} Chip8_OpcodeHandler;
 
 // About the Chip-8 Instrcution set
 //
@@ -109,3 +120,4 @@ extern void Chip8_Fx55(Chip8* chip8, uint16_t memory);
 // to X
 extern void Chip8_IndexRegisterFill_Fx65(Chip8* chip8, uint16_t memory[], uint16_t opcode);
 extern void Chip8_Display_Dxyn(Chip8* chip8, uint16_t memory);
+extern void Chip8_NOP(Chip8* chip8, uint16_t memory);

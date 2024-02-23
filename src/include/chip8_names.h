@@ -11,7 +11,7 @@ enum Chip8_WindowDefaults{
 // #define CHIP8_SDL_SHOW_MORE_LOG_INFO
 
 // enable if you want to know what instruction the chip8 is executing
-// #define CHIP8_SHOW_LOG_INSTRUCTION
+#define CHIP8_SHOW_LOG_INSTRUCTION
 
 #ifdef _DEBUG
   #define CHIP8_LOG_INFO(fmt, ...)        printf("\x1b[36m""[i] Chip8:""\x1b[0m " fmt, __VA_ARGS__)
