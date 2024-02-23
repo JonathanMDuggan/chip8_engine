@@ -10,6 +10,7 @@
 #include <dos.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 uint8_t Chip8_Emulate(const char* file_name) {
   Chip8 chip8;
@@ -88,81 +89,21 @@ void Chip8_OpcodeStartsAt2To7(Chip8* chip8, uint16_t opcode) {
       break;
   }
 }
-// This is bad code, i'm gonna fix this with function pointers.
+
 void Chip8_OpcodeStartsWith8(Chip8* chip8, uint16_t opcode) {
   uint8_t most_significant_nibble = Chip8_ReadFirstNibble(opcode);
-  switch (most_significant_nibble) {
-    case kLDVxVy:
-      Chip8_LoadRegisterYToRegsiterX_8xy0(chip8, opcode);
-      break;
-    case kORVxVy:
-      CHIP8_LOG_INSTRUCTION(
-          "0x%03x 0x%04x  OR   V%01x, V%01x\n",
-          chip8->_register->program_counter, opcode,
-          chip8->_register->general_perpose[Chip8_ReadThirdNibble(opcode)],
-          chip8->_register->general_perpose[Chip8_ReadSecondNibble(opcode)]);
-      Chip8_BitwiseOrRegisterXByRegisterY_8xy1(chip8, opcode);
-      break;
-    case kANDVxVy:
-      CHIP8_LOG_INSTRUCTION(
-          "0x%03x 0x%04x  AND   V%01x, V%01x\n",
-          chip8->_register->program_counter, opcode,
-          chip8->_register->general_perpose[Chip8_ReadThirdNibble(opcode)],
-          chip8->_register->general_perpose[Chip8_ReadSecondNibble(opcode)]);
-      Chip8_BitwiseAndRegisterXByRegisterY_8xy2(chip8, opcode);
-      break;
-    case kXORVxVy:
-      CHIP8_LOG_INSTRUCTION(
-          "0x%03x 0x%04x  XOR   V%01x, V%01x\n",
-          chip8->_register->program_counter, opcode,
-          chip8->_register->general_perpose[Chip8_ReadThirdNibble(opcode)],
-          chip8->_register->general_perpose[Chip8_ReadSecondNibble(opcode)]);
-      Chip8_BitwiseXorRegisterXByRegisterY_8xy3(chip8, opcode);
-      break;
-    case kADDVxVy:
-      CHIP8_LOG_INSTRUCTION(
-          "0x%03x 0x%04x  ADD   V%01x, V%01x\n",
-          chip8->_register->program_counter, opcode,
-          chip8->_register->general_perpose[Chip8_ReadThirdNibble(opcode)],
-          chip8->_register->general_perpose[Chip8_ReadSecondNibble(opcode)]);
-      Chip8_AddRegisterXByRegisterY_8xy4(chip8, opcode);
-      break;
-    case kSUBVxVy:
-      CHIP8_LOG_INSTRUCTION(
-          "0x%03x 0x%04x  SUB   V%01x, V%01x\n",
-          chip8->_register->program_counter, opcode,
-          chip8->_register->general_perpose[Chip8_ReadThirdNibble(opcode)],
-          chip8->_register->general_perpose[Chip8_ReadSecondNibble(opcode)]);
-      Chip8_SubRegisterXByRegisterY_8xy5(chip8, opcode);
-      break;
-    case kSHRVxVy:
-      CHIP8_LOG_INSTRUCTION(
-          "0x%03x 0x%04x  SHR   V%01x, V%01x\n",
-          chip8->_register->program_counter, opcode,
-          chip8->_register->general_perpose[Chip8_ReadThirdNibble(opcode)],
-          chip8->_register->general_perpose[Chip8_ReadSecondNibble(opcode)]);
-      Chip8_ShiftRegisterXRight_8xy6(chip8, opcode);
-      break;
-    case kSUBNVxVy:
-      CHIP8_LOG_INSTRUCTION(
-          "0x%03x 0x%04x  SUBN  V%01x, V%01x\n",
-          chip8->_register->program_counter, opcode,
-          chip8->_register->general_perpose[Chip8_ReadThirdNibble(opcode)],
-          chip8->_register->general_perpose[Chip8_ReadSecondNibble(opcode)]);
-      break;
-    case kSHLVxVy:
-      CHIP8_LOG_INSTRUCTION(
-          "0x%03x 0x%04x  SHL   V%01x, V%01x\n",
-          chip8->_register->program_counter, opcode,
-          chip8->_register->general_perpose[Chip8_ReadThirdNibble(opcode)],
-          chip8->_register->general_perpose[Chip8_ReadSecondNibble(opcode)]);
-      Chip8_ShiftRegisterXLeft_8xyE(chip8, opcode);
-      break;
-    default:
-      printf("[i] Chip8 Invaild Instruction Chip8_OpcodeStartsWith8: 0x%04x\n", opcode);
-      break;
-  }
+  Chip8_OpcodeHandler arithmetic_opcode[0xF];
+
+  if (most_significant_nibble > 14) most_significant_nibble = kNOP;
+
+  Chip8_CreateArithmeticOpcodeTable(&arithmetic_opcode);
+  #ifdef _DEBUG
+  Chip8_PrintArithmeticAssembly(chip8, opcode,
+                                arithmetic_opcode->kChip8Assembly);
+  #endif
+  arithmetic_opcode[most_significant_nibble].function(chip8, opcode);
 }
+
 void Chip8_OpcodeStartsAt9ToE(Chip8* chip8, uint16_t opcode) {
   uint8_t least_significant_byte;
   uint8_t most_significant_nibble = Chip8_ReadFirstNibble(opcode);
@@ -258,3 +199,84 @@ void Chip8_ProcessInstruction(Chip8* chip8, uint16_t opcode) {
     return;
   }
 }
+
+// These tables are used for opcodes which use the same arguments in the
+// assembly message
+
+// These opcodes were my absolute favourate. Almost all of them went from
+// 0 to 6, all of them took the same argurments (two chip8 registers) 
+void Chip8_CreateArithmeticOpcodeTable(Chip8_OpcodeHandler* table[]) {
+  table[kLDVxVy]->function =  Chip8_LoadRegisterYToRegsiterX_8xy0;
+  table[kLDVxVy]->kChip8Assembly =  "0x%03x 0x%04x  LD   V%01x, V%01x\n";
+  table[kORVxVy]->function =  Chip8_BitwiseOrRegisterXByRegisterY_8xy1;
+  table[kORVxVy]->kChip8Assembly =  "0x%03x 0x%04x  OR   V%01x, V%01x\n";
+  table[kANDVxVy]->function = Chip8_BitwiseAndRegisterXByRegisterY_8xy2;
+  table[kANDVxVy]->kChip8Assembly = "0x%03x 0x%04x  AND  V%01x, V%01x\n";
+  table[kXORVxVy]->function = Chip8_BitwiseXorRegisterXByRegisterY_8xy3;
+  table[kXORVxVy]->kChip8Assembly = "0x%03x 0x%04x  XOR  V%01x, V%01x\n";
+  table[kADDVxVy]->function = Chip8_AddRegisterXByRegisterY_8xy4;
+  table[kADDVxVy]->kChip8Assembly = "0x%03x 0x%04x  ADD  V%01x, V%01x\n";
+  table[kSUBVxVy]->function = Chip8_SubRegisterXByRegisterY_8xy5;
+  table[kSUBVxVy]->kChip8Assembly = "0x%03x 0x%04x  SUB  V%01x, V%01x\n";
+  table[kSHRVxVy]->function = Chip8_ShiftRegisterXRight_8xy6;
+  table[kSHRVxVy]->kChip8Assembly = "0x%03x 0x%04x  SHR  V%01x, V%01x\n";
+
+  // There are no instructions for numbers 7 to 13, use a nop if called.
+  for (size_t i = 7; i < 0xE; i++) {
+    table[i]->function = Chip8_NOP;
+    table[i]->kChip8Assembly = "0x%03x 0x%04x  NOP  V%01x, V%01x\n";
+  }
+
+  table[kSHLVxVy]->function = Chip8_ShiftRegisterXLeft_8xyE;
+  table[kSHLVxVy]->kChip8Assembly = "0x%03x 0x%04x  SHL  V%01x, V%01x\n";
+}
+
+void Chip8_CreateAddressOpcodeTable(Chip8_OpcodeHandler* table[]) {
+  table[JPaddr]->function = Chip8_JumpToLocation_1nnn;
+  table[JPaddr]->kChip8Assembly = "0x%03x 0x%04x  JP   V%01x, V%01x\n";
+  table[CALLaddr]->function = Chip8_Call_2nnn;
+  table[CALLaddr]->kChip8Assembly = "0x%03x 0x%04x  CALL V%01x, V%01x\n";
+  
+  // There are no instructions for numbers 3 to 9, use a nop if called.
+  for (size_t i = 3; i < 0xA; i++) {
+    table[i]->function = Chip8_NOP;
+    table[i]->kChip8Assembly = "0x%03x 0x%04x  NOP  V%01x, V%01x\n";
+  }
+
+}
+
+void Chip8_CreateMemoryOpcodeTable(Chip8_OpcodeHandler* table[]) {
+
+}
+// Don't bother with creating these function if I didn't enable the
+// Chip8 Log Instruction meme
+#ifdef _DEBUG
+
+void Chip8_PrintArithmeticAssembly(Chip8* chip8, uint16_t opcode,
+                                   const char* assembly) {
+  char buffer[50];
+  sprintf_s(buffer, assembly, 50,
+          chip8->_register->program_counter, opcode,
+          chip8->_register->general_perpose[Chip8_ReadThirdNibble(opcode)],
+          chip8->_register->general_perpose[Chip8_ReadSecondNibble(opcode)]);
+  CHIP8_LOG_INSTRUCTION("%s", buffer);
+}
+
+void Chip8_PrintMemoryAssembly(Chip8* chip8, uint16_t opcode,
+  const char* assembly) {
+  char buffer[50];
+  sprintf_s(buffer, 50 , assembly, chip8->_register->program_counter, opcode,
+          chip8->_register->general_perpose[Chip8_ReadThirdNibble(opcode)],
+          Chip8_ReadLoByteFromWord(chip8->memory));
+  CHIP8_LOG_INSTRUCTION("%s", buffer);
+}
+
+void Chip8_PrintIndexAssembly(Chip8* chip8, uint16_t opcode,
+                              const char* assembly) {
+  char buffer[50];
+  sprintf_s(buffer, 50, assembly, chip8->_register->program_counter, opcode,
+          chip8->_register->general_perpose[Chip8_ReadThirdNibble(opcode)],
+          chip8->_register->index);
+  CHIP8_LOG_INSTRUCTION("%s", buffer);
+}
+#endif
