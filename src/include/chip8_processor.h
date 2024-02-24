@@ -57,7 +57,7 @@ typedef struct Chip8{
   // Specs and has to do with how SDL works. SDL has a RGBA notation, and it
   // based it's colors on bytes, FF being full brightness and 00 being off.
   // By having a 32 bit interger be 0xFFFFFFFF for white and 0x00000000 for 
-  // black you can just put the value into the SDL function without needing
+  // black you can just put the value into the SDL instruction without needing
   // to translate the CHIP-8 display output.
   uint32_t screen[kChip8ScreenLenght][kChip8ScreenHeight];
 
