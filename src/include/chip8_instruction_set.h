@@ -9,8 +9,8 @@ enum Chip8_Opcodes {
   CLS = 0xE0,
   RET = 0xEE,
   // Opcodes where the first number is between 1 to 7
-  JPaddr   = 1, CALLaddr  = 2, SEVxbyte  = 3, SNEVxbyte = 4, SEVxVy = 5,
-  LDVxbyte = 6, ADDVxbyte = 7,
+  kJPaddr   = 1, kCALLaddr  = 2, kSEVxbyte  = 3, kSNEVxbyte = 4, SEVxVy = 5,
+  kLDVxbyte = 6, kADDVxbyte = 7,
   // Opcodes which start with the number 8
   kLDVxVy  = 0, kORVxVy  = 1, kANDVxVy  = 2, kXORVxVy = 3,   kADDVxVy = 4,
   kSUBVxVy = 5, kSHRVxVy = 6, kSUBNVxVy = 7, kSHLVxVy = 0xE,
@@ -22,14 +22,21 @@ enum Chip8_Opcodes {
   kADDIVx = 0x1E, kLDFVx = 0x29, kLDBVx  = 0x33, kLDIVx  = 0x55,
   kLDVxI  = 0x65,
 
-  kNOP = 0xC
+  // Function Pointer Size
+  kNumberOfOpcodesThatStartWith8 = 0xF,
+  kOpcodeNNNFunctionPointerArraySize = 0xB,
+  kOpcodeStartsWith8NOP = 0xA,
+  kOpcodeNNNNOP = 3,
+  kMaxBufferSize = 50,
+  kOpcodeKKFunctionPointerArraySize = 0xC,
+  kOpcodeKKNOP = 5
 };
 
 typedef void (*Chip8_OpcodeFunction)(Chip8*, uint16_t);
 
 typedef struct Chip8_OpcodeHandler{
-  Chip8_OpcodeFunction function;
-  const char* kChip8Assembly;
+  Chip8_OpcodeFunction instruction;
+  const char* kAssembly;
 } Chip8_OpcodeHandler;
 
 // About the Chip-8 Instrcution set
@@ -38,9 +45,9 @@ typedef struct Chip8_OpcodeHandler{
 
 // Instruction Set functions:
 // 
-// Unconventional function naming convention, so here is the explaination: 
+// Unconventional instruction naming convention, so here is the explaination: 
 // 
-// The number at the end of every function repersents the opcodes
+// The number at the end of every instruction repersents the opcodes
 // hexadecimal value. Whenever you see any letters outside of the hexadecimal
 // space ( letter after F) that being nnn, x, or kk it means the following...
 // 
@@ -56,7 +63,7 @@ typedef struct Chip8_OpcodeHandler{
 // * y:   This means the opcode is calling a second register, the hexidecimal
 //        located at y is the second register number.
 // 
-// Therefore if you see the function 'Chip8_AddMemoryToRegisterX_7xkk' it means
+// Therefore if you see the instruction 'Chip8_AddMemoryToRegisterX_7xkk' it means
 // Add the value at 'kk' to Register 'x' 
 
 // extern void Chip8_JumpToLocation_0nnn(chip8* chip8, uint16_t memory);
@@ -68,14 +75,17 @@ extern void Chip8_Call_2nnn(Chip8* chip8,uint16_t memory);
 extern void Chip8_SkipNextInstrucionIfRegisterXEqualMemory_3xkk(
   Chip8*   chip8,
   uint16_t memory);
+
 extern void Chip8_SkipNextInstrucionIfRegisterXDoesNotEqualMemory_4xkk(
   Chip8*   chip8, 
   uint16_t memory
 );
+
 extern void Chip8_SkipNextInstrucionIfRegisterXEqualRegisterY_5xy0(
   Chip8*   chip8, 
   uint16_t memory
 );
+
 extern void Chip8_LoadMemoryToRegisterX_6xkk(Chip8* chip8, uint16_t memory);
 extern void Chip8_AddMemoryToRegisterX_7xkk(Chip8* chip8, uint16_t memory);
 extern void Chip8_LoadRegisterYToRegsiterX_8xy0(Chip8* chip8, uint16_t memory);
@@ -95,12 +105,12 @@ extern void Chip8_SubRegisterXByRegisterY_8xy5(Chip8* chip8, uint16_t memory);
 extern void Chip8_ShiftRegisterXRight_8xy6(Chip8* chip8, uint16_t memory);
 extern void Chip8_SubtractRegisterYbyRegisterX_8xy7(Chip8* chip8, uint16_t memory);
 extern void Chip8_ShiftRegisterXLeft_8xyE(Chip8* chip8, uint16_t memory);
-extern void Chip8_SkipIfRegisterXDoesNotEqualStatusRegister_9xy0(Chip8* chip8,
-                                                                uint16_t memory);
+extern void Chip8_SkipIfRegisterXDoesNotEqualStatusRegister_9xy0(
+    Chip8* chip8, uint16_t memory);
 extern void Chip8_StoreMemoryInIndexRegister_Annn(Chip8*   chip8,
                                                   uint16_t opcode);
-extern void Chip8_JumpToLocationInMemoryPlusRegister0_Bnnn(Chip8*   chip8, 
-                                                          uint16_t memory);
+extern void Chip8_JumpToLocationInMemoryPlusRegister0_Bnnn(Chip8* chip8,
+                                                           uint16_t memory);
 extern void Chip8_SetRegisterXToRandomByteANDMemory_Cxkk(Chip8*   chip8, 
                                                          uint16_t memory);
 extern void Chip8_Display_Dxyn(Chip8* chip8, uint16_t memory);

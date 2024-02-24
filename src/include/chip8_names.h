@@ -10,20 +10,14 @@ enum Chip8_WindowDefaults{
 // enable if you want the console filled with useless infomation like mouse movement
 // #define CHIP8_SDL_SHOW_MORE_LOG_INFO
 
-// enable if you want to know what instruction the chip8 is executing
-#define CHIP8_SHOW_LOG_INSTRUCTION
-
 #ifdef _DEBUG
   #define CHIP8_LOG_INFO(fmt, ...)        printf("\x1b[36m""[i] Chip8:""\x1b[0m " fmt, __VA_ARGS__)
   #define CHIP8_LOG_ERROR(fmt, ...)       printf("\x1b[31m""[-] Chip8:""\x1b[0m " fmt, __VA_ARGS__)
   #define CHIP8_LOG_SUCCESS(fmt, ...)     printf("\x1b[32m""[+] Chip8:""\x1b[0m " fmt, __VA_ARGS__)
 
 // Shows what chip8 opcode is excuted during runtime
-  #ifdef CHIP8_SHOW_LOG_INSTRUCTION
-    #define CHIP8_LOG_INSTRUCTION(fmt, ...) printf("\x1b[33m""[ASM] Chip8:""\x1b[0m " fmt, __VA_ARGS__)
-  #else
-    #define CHIP8_LOG_INSTRUCTION(fmt, ...)
-  #endif 
+  #define CHIP8_LOG_INSTRUCTION(fmt, ...) printf("\x1b[33m""[ASM] Chip8:""\x1b[0m " fmt, __VA_ARGS__)
+
 
   #define CHIP8_SDL_LOG_INFO(fmt, ...)      printf("\x1b[36m""[i] SDL:""\x1b[0m " fmt, __VA_ARGS__)
 

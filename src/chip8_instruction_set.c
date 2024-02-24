@@ -9,9 +9,9 @@
 
 // Instruction Set functions:
 // 
-// Unconventional function naming convention, so here is the explaination: 
+// Unconventional instruction naming convention, so here is the explaination: 
 // 
-// The number at the end of every function repersents the opcodes
+// The number at the end of every instruction repersents the opcodes
 // hexadecimal value. Whenever you see any letters outside of the hexadecimal
 // space ( letter after F) that being nnn, x, or kk it means the following...
 // 
@@ -27,7 +27,7 @@
 // * y:   This means the opcode is calling a second register, the hexidecimal
 //        located at y is the second register number.
 // 
-// Therefore if you see the function 'Chip8_AddMemoryToRegisterX_7xkk' it means
+// Therefore if you see the instruction 'Chip8_AddMemoryToRegisterX_7xkk' it means
 // Add the value at 'kk' to Register 'x' 
 // 
 // Note: the reason we increament the Program counter by 2 each time is because
@@ -153,9 +153,9 @@ void Chip8_SubRegisterXByRegisterY_8xy5(Chip8* chip8, uint16_t memory){
                                         Chip8_RegisterXMinusData);
   chip8->_register->program_counter += kChip8NextInstruction;
 }
-// I chould not think of a good name for this function:
+// I chould not think of a good name for this instruction:
 //
-// This function checks if the least significant bit of Register X is 1, if it
+// This instruction checks if the least significant bit of Register X is 1, if it
 // is one the status register is set to 1, else, it's set to 0. Then Register X
 // is bit shifted by 1
 void Chip8_ShiftRegisterXRight_8xy6(Chip8* chip8, uint16_t memory){
@@ -231,7 +231,7 @@ void Chip8_RegisterEqualDelayTimer_Fx07(Chip8* chip8, uint16_t memory){
 }
 
 void Chip8_StoreKeyPressInRegisterX_Fx0A(Chip8* chip8, uint16_t memory){
-  // If input = 0, that means no keys are pressed during at the function call
+  // If input = 0, that means no keys are pressed during at the instruction call
   if (chip8->input != 0) {
     chip8->_register->general_perpose[Chip8_ReadThirdNibble(memory)] =
         chip8->input;
@@ -338,9 +338,9 @@ void Chip8_Display_Dxyn(Chip8* chip8, uint16_t memory) {
   printf("Haven't done anything yet: Dxyn");
 }
 
-// The memory parameter is here because almost all function are acessed by
+// The memory parameter is here because almost all instruction are acessed by
 // pointer through an array, and by default all data is sent via chip8 and 
-// memory, if this function didn't have memory in it's parameters, the program
+// memory, if this instruction didn't have memory in it's parameters, the program
 // will crash
 void Chip8_NOP(Chip8* chip8, uint16_t memory) {
   chip8->_register->program_counter += kChip8NextInstruction;

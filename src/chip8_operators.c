@@ -103,7 +103,7 @@ void Chip8_RegisterXPlusData(uint8_t* register_x, const uint8_t kData, Chip8* ch
   // that.
   uint16_t sum = *register_x + kData;
   if (sum > 255) {
-    // The change is done in the instruction set function
+    // The change is done in the instruction set instruction
     *chip8->_register->status |= 1;
   }
   // If the value didn't overflow, we pass the value and don't change anything
@@ -113,7 +113,7 @@ void Chip8_RegisterXPlusData(uint8_t* register_x, const uint8_t kData, Chip8* ch
 void Chip8_RegisterXMinusData(uint8_t* register_x, const uint8_t kData, Chip8 *chip8){
   int16_t difference = *register_x - kData;
   if (difference < 0) {
-    // The change is done in the instruction set function
+    // The change is done in the instruction set instruction
     *chip8->_register->status |= 1;
   }
   // If the value didn't overflow, we pass the value and don't change anything
@@ -122,62 +122,62 @@ void Chip8_RegisterXMinusData(uint8_t* register_x, const uint8_t kData, Chip8 *c
 }
 
 
-// Higher Order Function: Call when instruction Set function uses Register X
+// Higher Order Function: Call when instruction Set instruction uses Register X
 // as the operand for RegisterY (RegisterX (Operation)= RegisterY)
 void Chip8_RegisterToRegisterOperation(Chip8* chip8, uint16_t memory,
                                       void(*operation)(uint8_t*,const uint8_t)){
 
-  // This function was created because the Chip8 uses four opcodes that do
+  // This instruction was created because the Chip8 uses four opcodes that do
   // practically the same thing but the operation. Therefore whenever those
-  // functions are called, we use this function instead, and pass the operation
+  // functions are called, we use this instruction instead, and pass the operation
   // in the parameters.
 
   // The Third Nibble in the 16bit memory is the register number
 
-  // Will the function use ^=, |=, &= ?, The helper functions (operation) 
+  // Will the instruction use ^=, |=, &= ?, The helper functions (operation) 
   // determines that. 
   operation(&chip8->_register->general_perpose[Chip8_ReadThirdNibble(memory)],
              chip8->_register->general_perpose[Chip8_ReadSecondNibble(memory)]);
 }
-// Higher Order Function: Call when instruction Set function uses Register X
+// Higher Order Function: Call when instruction Set instruction uses Register X
 // as the operand for RegisterY. And! this operation changes the flag register
 // if certain conditions have met (RegisterX (Operation)= RegisterY)
-// This function is only called for Add and Minus instructions!
+// This instruction is only called for Add and Minus instructions!
 void Chip8_RegisterToRegisterOperationFlag(Chip8* chip8, uint16_t memory,
   void(*operation)(uint8_t*, const uint8_t, Chip8*)) {
 
-  // Will the function use +=, -=, ?, The helper functions (operation) 
+  // Will the instruction use +=, -=, ?, The helper functions (operation) 
   // determines that. 
   operation(&chip8->_register->general_perpose[Chip8_ReadThirdNibble(memory)],
     chip8->_register->general_perpose[Chip8_ReadSecondNibble(memory)],
     chip8);
 }
-// Higher Order Function: Call when instruction Set function uses Register X
+// Higher Order Function: Call when instruction Set instruction uses Register X
 // as the operand for Memory (RegisterX (Operation)= Memory)
 void Chip8_MemoryRead(Chip8* chip8, uint16_t memory, 
                      void(*operation)(uint8_t*, const uint8_t)){
 
-  // This function was created since reading memory is the same for most opcodes.
+  // This instruction was created since reading memory is the same for most opcodes.
   // The Chip8 can only read 8bits of memory data to the registers, therefore
   // we need to read the LoByte of the memory to the register to operate on it
 
-  // Will the function use |=, ^=, &= ?, The helper functions (operation) 
+  // Will the instruction use |=, ^=, &= ?, The helper functions (operation) 
   // determines that. 
   operation(&chip8->_register->general_perpose[Chip8_ReadThirdNibble(memory)],
              Chip8_ReadLoByteFromWord(memory));
 }
-// Higher Order Function: Call when instruction Set function uses Register X
+// Higher Order Function: Call when instruction Set instruction uses Register X
 // as the operand for Memory. And! this operation changes the flag register if
-// certain conditions are met (RegisterX (Operation)= Memory) This function is
+// certain conditions are met (RegisterX (Operation)= Memory) This instruction is
 // only called for Add and Minus instructions!
 void Chip8_MemoryReadFlag(Chip8* chip8, uint16_t memory,
   void(*operation)(uint8_t*, const uint8_t, Chip8*)) {
 
-  // This function was created since reading memory is the same for two opcodes.
+  // This instruction was created since reading memory is the same for two opcodes.
   // The Chip8 can only read 8bits of memory data to the registers, therefore
   // we need to read the LoByte of the memory to the register to operate on it
 
-  // Will the function use +=, -=, ?, The helper functions (operation) 
+  // Will the instruction use +=, -=, ?, The helper functions (operation) 
   // determines that. 
   operation(&chip8->_register->general_perpose[Chip8_ReadThirdNibble(memory)],
     Chip8_ReadLoByteFromWord(memory),chip8);
