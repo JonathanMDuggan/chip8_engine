@@ -330,12 +330,13 @@ void Chip8_SetRegisterXToRandomByteANDMemory_Cxkk(Chip8* chip8,
     = Chip8_GetRandom8bitNumber() & memory;
   chip8->_register->program_counter += kChip8NextInstruction;
 }
+
 void Chip8_Fx55(Chip8* chip8, uint16_t memory) {
-  printf("Haven't done anything yet: Fx55");
+  printf("Haven't done anything yet: Fx55\n");
 }
 
 void Chip8_Display_Dxyn(Chip8* chip8, uint16_t memory) {
-  printf("Haven't done anything yet: Dxyn");
+  printf("Haven't done anything yet: Dxyn\n");
 }
 
 // The memory parameter is here because almost all instruction are acessed by
