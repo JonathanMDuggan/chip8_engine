@@ -29,7 +29,6 @@ uint8_t Chip8_Emulate(const char* file_name) {
   while (emulating) {
     Chip8_SDLRender(&sdl);
     Chip8_ProcessInstruction(&chip8, opcode);
-    SDL_Delay(100);
     Chip8_SDLReadInput(&chip8, &sdl, &emulating);
   }
 
@@ -114,7 +113,7 @@ void Chip8_Execute(
 
 void Chip8_OpcodeStartsAt9ToE(Chip8* chip8, uint16_t opcode) {
   uint8_t least_significant_byte = Chip8_ReadLoByteFromWord(opcode);
-  uint8_t most_significant_nibble = Chip8_ReadFirstNibble(opcode);
+  uint8_t most_significant_nibble = Chip8_ReadForthNibble(opcode);
   switch (most_significant_nibble) {
     case kSNEVxVy:
       Chip8_SkipIfRegisterXDoesNotEqualStatusRegister_9xy0(chip8, opcode);
@@ -160,12 +159,10 @@ void Chip8_OpcodeStartsWithF(Chip8* chip8, uint16_t opcode) {
       Chip8_BCDConversion_Fx33(chip8, opcode);
       break;
     case kLDIVx:
-      Chip8_Fx55(chip8, opcode);
+      Chip8_IndexStoreIteratorFx55(chip8, opcode);
       break;
-    // The only Opcode that needs more than 2 arguements
     case kLDVxI:
-      Chip8_IndexRegisterFill_Fx65(
-          chip8, &chip8->memory[chip8->_register->program_counter], opcode);
+      Chip8_IndexRegisterFill_Fx65(chip8, opcode);
       break;
   }
 }
@@ -182,7 +179,6 @@ void Chip8_ProcessInstruction(Chip8* chip8, uint16_t opcode) {
     Chip8_OpcodesStartsWith0(chip8, opcode);
     return;
   }
-
   // All NNN opcodes start with 1,2 and A,B
   if (Chip8_IsNNNOpcode(kIdentifier)) {
     Chip8_OpcodeNNN(chip8, opcode);
@@ -207,7 +203,6 @@ void Chip8_ProcessInstruction(Chip8* chip8, uint16_t opcode) {
     Chip8_OpcodeStartsAt9ToE(chip8, opcode);
     return;
   }
-
 }
 
 uint8_t Chip8_IsNNNOpcode(const uint8_t kIdentifier) {

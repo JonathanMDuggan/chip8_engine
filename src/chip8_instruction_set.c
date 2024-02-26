@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include <SDL.h>
 #include "include/chip8_processor.h"
 #include "include/chip8_instruction_set.h"
 #include "include/chip8_operators.h"
@@ -279,14 +279,16 @@ void Chip8_BCDConversion_Fx33(Chip8* chip8, uint16_t memory[],
 // Fills all general perpose registers with memory addresses starting at the
 // memory address stored in the index register, then add  X + 1 to the
 // index register
-void Chip8_IndexRegisterFill_Fx65(Chip8*   chip8, 
-                                 uint16_t memory[], 
+void Chip8_IndexRegisterFill_Fx65(Chip8*   chip8,  
                                  uint16_t opcode){
   size_t i;
   for (i = 0; i < kChip8MaxNumberOfGeneralPerposeRegisters; i++)
-    chip8->_register->general_perpose[i] = memory[chip8->_register->index + i];
+    chip8->_register->general_perpose[i] = chip8->memory[chip8->_register->index + i];
   
-  chip8->_register->index += Chip8_ReadThirdNibble(opcode) + 1;
+  // This behavior happened on the COSMAC VIP chip8 interpreter, modern chip8
+  // interpreters won't do this:
+  // 
+  //chip8->_register->index += Chip8_ReadThirdNibble(opcode) + 1;
   chip8->_register->program_counter += kChip8NextInstruction;
 }
 
@@ -330,15 +332,28 @@ void Chip8_SetRegisterXToRandomByteANDMemory_Cxkk(Chip8* chip8,
     = Chip8_GetRandom8bitNumber() & memory;
   chip8->_register->program_counter += kChip8NextInstruction;
 }
-
-void Chip8_Fx55(Chip8* chip8, uint16_t memory) {
-  printf("Haven't done anything yet: Fx55\n");
+// Stores the data from memory to V0 to VX starting at the memory index pointed
+// by the index register
+void Chip8_IndexStoreIteratorFx55(Chip8* chip8, uint16_t memory) { 
+  uint8_t register_iterator = Chip8_ReadThirdNibble(memory);
+  for (size_t i = 0; i < register_iterator; i++) {
+    chip8->memory[chip8->_register->index + i] =
+        chip8->_register->general_perpose[i];
+  }
+  chip8->_register->program_counter += kChip8NextInstruction;
 }
 
+// I know this will be the hardest function to create, I have no idea
+// What i'm doing
 void Chip8_Display_Dxyn(Chip8* chip8, uint16_t memory) {
-  printf("Haven't done anything yet: Dxyn\n");
-}
+  uint8_t n = chip8->memory[chip8->_register->index];
+  uint8_t x = chip8->_register->general_perpose[Chip8_ReadThirdNibble(memory)] % 64;
+  uint8_t y = chip8->_register->general_perpose[Chip8_ReadSecondNibble(memory)] % 32;
+  chip8->_register->status = 0;
 
+  chip8->_register->program_counter += kChip8NextInstruction;
+}
+// 250 285
 // The memory parameter is here because almost all instruction are acessed by
 // pointer through an array, and by default all data is sent via chip8 and 
 // memory, if this instruction didn't have memory in it's parameters, the program
