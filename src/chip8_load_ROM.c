@@ -27,7 +27,7 @@ uint8_t Chip8_ReadFile(Chip8* chip8, const char* file_name) {
   bytes_read = fread(&chip8->memory[kChip8StackBase], 1,
                     sizeof(chip8->memory), file);
   fclose(file);
-  if (bytes_read = 0) {
+  if (bytes_read == 0) {
     printf("Failed to read file: %s\n", file_name);
   }
   return EXIT_SUCCESS;

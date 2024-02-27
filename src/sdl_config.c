@@ -32,12 +32,12 @@ uint8_t Chip8_SDLInitialize(Chip8* chip8, SDL* sdl) {
   // the console
   if (sdl->window == NULL) {
     CHIP8_SDL_LOG_ERROR("window could not open: %s\n", SDL_GetError());
-    Chip8_SDLQuit(sdl->window, sdl->renderer, sdl->surface);
+    Chip8_SDLQuit(sdl);
     return EXIT_FAILURE;
   }
   if (sdl->renderer == NULL) {
     CHIP8_SDL_LOG_ERROR("renderer failed to initialize: %s\n", SDL_GetError());
-    Chip8_SDLQuit(sdl->window, sdl->renderer, sdl->surface);
+    Chip8_SDLQuit(sdl);
     return EXIT_FAILURE;
   }
 
@@ -74,7 +74,7 @@ uint8_t Chip8_SDLInitialize(Chip8* chip8, SDL* sdl) {
 
 void Chip8_SDLReadInput(Chip8* chip8, SDL* sdl, uint8_t* emulator_is_running) {
   SDL_Event event;
-  Mouse mouse;
+  Mouse mouse = {0};
   char last_key[20] = "test1";
   char current_key[20] = "test2";
   mouse.location.x = 0;
@@ -97,7 +97,7 @@ void Chip8_SDLReadInput(Chip8* chip8, SDL* sdl, uint8_t* emulator_is_running) {
 
     case SDL_KEYDOWN:
 
-      strcpy(current_key, SDL_GetKeyName(event.key.keysym.sym));
+      strcpy_s(current_key, sizeof(current_key), SDL_GetKeyName(event.key.keysym.sym));
 
       // We do this since we do not want the inputs to spam the console
       // We only care if a new key was pressed, not if the same one was
@@ -111,7 +111,7 @@ void Chip8_SDLReadInput(Chip8* chip8, SDL* sdl, uint8_t* emulator_is_running) {
                          event.key.keysym.sym);
 
       if (strlen(SDL_GetKeyName(event.key.keysym.sym)) == 1) {
-        strcpy(last_key, SDL_GetKeyName(event.key.keysym.sym));
+        strcpy_s(last_key, sizeof(current_key), SDL_GetKeyName(event.key.keysym.sym));
         Chip8_ProcessInput(chip8, event.key.keysym.sym);
         break;
       }

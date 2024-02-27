@@ -9,7 +9,7 @@ enum Chip8_Constants {
   kChip8MaxRAMSize = 4096, kChip8MaxStackSize = 16,
   // Chip8 screen specs is 64 by 32 pixels
   kChip8ScreenLenght = 64, kChip8ScreenHeight = 32, kChip8FontSetSize = 80,
-  kChip8Background = 0, kChip8Foreground = 0xFFFFFFFFF,
+  kChip8Background = 0, kChip8Foreground = 0xFFFFFFFF,
 
   // General perpose registers 
   kChip8V0 = 0, kChip8V1 = 1, kChip8V2 = 2, kChip8V3 = 3, kChip8V4 = 4,
