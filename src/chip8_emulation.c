@@ -12,8 +12,8 @@
 #include <string.h>
 
 uint8_t Chip8_Emulate(const char* file_name) {
-  Chip8 chip8;
-  Register _register;
+  Chip8 chip8 = {0};
+  Register _register = {0};
   SDL sdl;
   uint16_t opcode = 0;
   uint8_t emulating = TRUE;

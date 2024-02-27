@@ -201,6 +201,7 @@ void Chip8_MemoryReadFlag(Chip8* chip8, uint16_t memory,
     Chip8_ReadLoByteFromWord(memory),chip8);
 }
 uint8_t Chip8_GetRandom8bitNumber() {
+
   srand(time(0));
-  return (rand() % 256);
+  return (uint8_t)(rand() % 256);
 }

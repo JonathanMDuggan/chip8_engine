@@ -356,18 +356,18 @@ void Chip8_Display_Dxyn(Chip8* chip8, uint16_t memory) {
   *(chip8->_register->status) = 0;
   uint8_t pixel;
 
-  for (size_t i = 0; i < n; i++) {
-    for (size_t j = 0; j < 8; j++) {
+  for (uint8_t i = 0; i < n; i++) {
+    for (uint8_t j = 0; j < 8; j++) {
       pixel = Chip8_ReadBitFromByte(chip8->memory[chip8->_register->index + i], j);
       
-      if (pixel && chip8->screen[(y + i) % 32][(x + j) % 64] == kChip8Foreground) {
-        chip8->screen[(y + i) % 32][(x + j) % 64] ^= kChip8Foreground;
-        *(chip8->_register->status) = (uint8_t)1;
+      if (pixel && chip8->screen[(x + i) % 64][(y + j) % 32] == kChip8Foreground) {
+        chip8->screen[(x + i) % 64][(y + j) % 32] ^= kChip8Foreground;
+        *(chip8->_register->status) = 1;
         continue;
       }
 
       if (pixel) {
-        chip8->screen[(y + i) % 32][(x + j) % 64] ^= kChip8Foreground;
+        chip8->screen[(x + i) % 64][(y + j) % 32] ^= kChip8Foreground;
       }
     }
   }
