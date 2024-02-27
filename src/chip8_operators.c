@@ -8,12 +8,30 @@
 
 // Shifts the nibbles (4 bits) of a 16-bit hexadecimal number
 // to the right by a specified number of places.
+uint8_t Chip8ConvertInputToHex(uint16_t input) {
+  for (uint8_t i = 0; i < 16; i++) {
+    if (Chip8_ReadHexFromWord(input, i) != kChip8KeyPadNull) {
+      return i;
+    }
+  }
+  return 0;
+}
+
 inline uint16_t Chip8_MoveNibbleRight(uint16_t value, uint8_t x_amount_of_places) {
   return value >> (x_amount_of_places * 4);
 }
 // 000X: Reads the first nibble (4 bits) from a 16-bit hexadecimal number.
 inline uint8_t Chip8_ReadFirstNibble(uint16_t value){
   return (uint8_t)((value & kNibble1BitMask));
+}
+uint8_t Chip8_ReadHexFromWord(uint16_t value, uint8_t pos) {
+  if (value & (0x0001 << pos)) {
+    return pos;
+  }
+  return kChip8KeyPadNull;
+}
+uint8_t Chip8_ReadBitFromByte(uint8_t value, uint8_t pos) { 
+  return value & (0x80 >> pos);
 }
 // 00X0: Reads the second nibble (4 bits) from a 16-bit hexadecimal number.
 inline uint8_t Chip8_ReadSecondNibble(uint16_t value){

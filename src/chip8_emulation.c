@@ -7,7 +7,6 @@
 #include "include/chip8_instruction_set.h"
 #include "include/chip8_names.h"
 #include "include/sdl_config.h"
-#include <dos.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -33,6 +32,7 @@ uint8_t Chip8_Emulate(const char* file_name) {
   }
 
   Chip8_SDLQuit(&sdl);
+  return EXIT_SUCCESS;
 }
 // I do break the 80 col rule here, but if I followed it, it would make this code
 // pretty hard to debug
@@ -93,11 +93,10 @@ void Chip8_OpcodeKK(Chip8* chip8, uint16_t opcode) {
                 Chip8_CreateMemoryOpcodeTable, execute, kOpcodeKKNOP, Chip8_PrintMemoryAssembly);
 }
 
-// largest function parameters I know!
 void Chip8_Execute(
     Chip8* chip8, uint16_t opcode, uint8_t kIdentifier,
     const uint8_t kFunctionPointerArraySize,
-    void (*CreateFunctionPointerArray)(Chip8_OpcodeHandler** mnemonic),
+    void (*CreateFunctionPointerArray)(Chip8_OpcodeHandler* mnemonic),
     Chip8_OpcodeHandler execute[], const uint8_t kNOP,
     void (*PrintAssembly)(Chip8* chip8, uint16_t opcode, const char* kAssembly))
     {
@@ -331,7 +330,7 @@ void Chip8_PrintMemoryAssembly(Chip8* chip8, uint16_t opcode,
   sprintf_s(buffer, sizeof(buffer), kAssemblyMessage,
             chip8->_register->program_counter, opcode,
             chip8->_register->general_perpose[Chip8_ReadThirdNibble(opcode)],
-            Chip8_ReadLoByteFromWord(chip8->memory));
+            chip8->memory[chip8->_register->program_counter]);
   CHIP8_LOG_INSTRUCTION("%s", buffer);
 }
 
