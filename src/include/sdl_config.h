@@ -17,6 +17,7 @@ typedef struct SDL {
   SDL_Renderer* renderer;
 }SDL;
 
-extern void Chip8_SDLStart(Chip8* chip8);
-extern uint8_t Chip8_SDLInitialize(Chip8* chip8);
+extern uint8_t Chip8_SDLInitialize(Chip8* chip8, SDL* sdl);
 extern void Chip8_SDLQuit(SDL* sdl);
+extern void Chip8_SDLRender(SDL* sdl);
+extern void Chip8_SDLReadInput(Chip8* chip8, SDL* sdl, uint8_t* emulating);

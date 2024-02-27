@@ -161,10 +161,10 @@ void Chip8_SubRegisterXByRegisterY_8xy5(Chip8* chip8, uint16_t memory){
 void Chip8_ShiftRegisterXRight_8xy6(Chip8* chip8, uint16_t memory){
   if (Chip8_ReadFirstNibble(
     chip8->_register->general_perpose[Chip8_ReadThirdNibble(memory)]) == 1) {
-    chip8->_register->status = 1;
+    *(chip8->_register->status) = 1;
   }
   else {
-    chip8->_register->status = 0;
+    *(chip8->_register->status) = 0;
   }
   // This is divison by 2!. This is how it's done in the Chip 8
   chip8->_register->general_perpose[Chip8_ReadThirdNibble(memory)] >>= 1;
@@ -174,9 +174,9 @@ void Chip8_ShiftRegisterXRight_8xy6(Chip8* chip8, uint16_t memory){
 void Chip8_SubtractRegisterYbyRegisterX_8xy7(Chip8* chip8, uint16_t memory) {
   if (chip8->_register->general_perpose[Chip8_ReadThirdNibble(memory)] >
       chip8->_register->general_perpose[Chip8_ReadSecondNibble(memory)]) {
-    chip8->_register->status = 1;
+    *(chip8->_register->status) = 1;
   } else {
-    chip8->_register->status = 0;
+    *(chip8->_register->status) = 0;
   }
   chip8->_register->general_perpose[Chip8_ReadThirdNibble(memory)] =
       chip8->_register->general_perpose[Chip8_ReadSecondNibble(memory)] -
@@ -194,9 +194,9 @@ void Chip8_SkipIfKeyIsPressed_Ex9E(Chip8* chip8, uint16_t memory){
       kChip8KeyPad8, kChip8KeyPad9, kChip8KeyPadA, kChip8KeyPadB,
       kChip8KeyPadC, kChip8KeyPadE, kChip8KeyPadF};
 
-  if (chip8_input_lookup_table
-          [chip8->_register->general_perpose[Chip8_ReadThirdNibble(memory)]] &
-      chip8->input != 0) {
+  if ((chip8_input_lookup_table
+          [chip8->_register->general_perpose[Chip8_ReadThirdNibble(memory)]]) &
+      (chip8->input != 0)) {
 
     chip8->_register->program_counter += kChip8SkipNextInstruction;
     return;
@@ -214,9 +214,9 @@ void Chip8_SkipIfKeyIsNotPressed_ExA1(Chip8* chip8, uint16_t memory){
       kChip8KeyPad8, kChip8KeyPad9, kChip8KeyPadA, kChip8KeyPadB,
       kChip8KeyPadC, kChip8KeyPadE, kChip8KeyPadF};
 
-  if (chip8_input_lookup_table
-          [chip8->_register->general_perpose[Chip8_ReadThirdNibble(memory)]] &
-      chip8->input == 0) {
+  if ((chip8_input_lookup_table
+          [chip8->_register->general_perpose[Chip8_ReadThirdNibble(memory)]]) &
+      (chip8->input == 0)) {
 
     chip8->_register->program_counter += kChip8SkipNextInstruction;
     return;
@@ -233,8 +233,10 @@ void Chip8_RegisterEqualDelayTimer_Fx07(Chip8* chip8, uint16_t memory){
 void Chip8_StoreKeyPressInRegisterX_Fx0A(Chip8* chip8, uint16_t memory){
   // If input = 0, that means no keys are pressed during at the instruction call
   if (chip8->input != 0) {
+
     chip8->_register->general_perpose[Chip8_ReadThirdNibble(memory)] =
-        chip8->input;
+        Chip8ConvertInputToHex(chip8->input);
+
     chip8->_register->program_counter += kChip8NextInstruction;
   }
 }
@@ -263,13 +265,13 @@ void Chip8_IndexEqualsRegisterX_Fx29(Chip8* chip8, uint16_t memory) {
   chip8->_register->program_counter += kChip8NextInstruction;
 }
 
-void Chip8_BCDConversion_Fx33(Chip8* chip8, uint16_t memory[],
+void Chip8_BCDConversion_Fx33(Chip8* chip8,
                               uint16_t opcode) {
   uint8_t register_x =
       chip8->_register->general_perpose[Chip8_ReadThirdNibble(opcode)];
 
   for (uint8_t i = 2; i != 255; i--) {
-    memory[chip8->_register->index + i] = register_x % 10;
+    chip8->memory[chip8->_register->index + i] = register_x % 10;
     register_x /= 10;
   }
 
@@ -295,10 +297,10 @@ void Chip8_IndexRegisterFill_Fx65(Chip8*   chip8,
 void Chip8_ShiftRegisterXLeft_8xyE(Chip8* chip8, uint16_t memory){
   if (Chip8_ReadForthNibble(chip8->_register->general_perpose[
                             Chip8_ReadThirdNibble(memory)]) == 1) {
-    chip8->_register->status = 1;
+    *(chip8->_register->status) = (uint8_t)1;
   }
   else {
-    chip8->_register->status = 0;
+    *(chip8->_register->status) = 0;
   }
   // This is the power of 2!. This is how it's done in the Chip 8
   chip8->_register->general_perpose[Chip8_ReadThirdNibble(memory)] <<= 1;
@@ -308,7 +310,7 @@ void Chip8_ShiftRegisterXLeft_8xyE(Chip8* chip8, uint16_t memory){
 void Chip8_SkipIfRegisterXDoesNotEqualStatusRegister_9xy0(Chip8* chip8,
                                                           uint16_t memory){
   if (chip8->_register->general_perpose[Chip8_ReadThirdNibble(memory)] !=
-      chip8->_register->status){
+      (uint16_t)chip8->_register->status){
     chip8->_register->program_counter += kChip8SkipNextInstruction;
     return;
   }
@@ -346,14 +348,32 @@ void Chip8_IndexStoreIteratorFx55(Chip8* chip8, uint16_t memory) {
 // I know this will be the hardest function to create, I have no idea
 // What i'm doing
 void Chip8_Display_Dxyn(Chip8* chip8, uint16_t memory) {
-  uint8_t n = chip8->memory[chip8->_register->index];
-  uint8_t x = chip8->_register->general_perpose[Chip8_ReadThirdNibble(memory)] % 64;
-  uint8_t y = chip8->_register->general_perpose[Chip8_ReadSecondNibble(memory)] % 32;
-  chip8->_register->status = 0;
+  uint8_t n = Chip8_ReadFirstNibble(memory);
+  uint8_t x =
+      chip8->_register->general_perpose[Chip8_ReadThirdNibble(memory)] % 64;
+  uint8_t y =
+      chip8->_register->general_perpose[Chip8_ReadSecondNibble(memory)] % 32;
+  *(chip8->_register->status) = 0;
+  uint8_t pixel;
 
+  for (size_t i = 0; i < n; i++) {
+    for (size_t j = 0; j < 8; j++) {
+      pixel = Chip8_ReadBitFromByte(chip8->memory[chip8->_register->index + i], j);
+      
+      if (pixel && chip8->screen[(y + i) % 32][(x + j) % 64] == kChip8Foreground) {
+        chip8->screen[(y + i) % 32][(x + j) % 64] ^= kChip8Foreground;
+        *(chip8->_register->status) = (uint8_t)1;
+        continue;
+      }
+
+      if (pixel) {
+        chip8->screen[(y + i) % 32][(x + j) % 64] ^= kChip8Foreground;
+      }
+    }
+  }
   chip8->_register->program_counter += kChip8NextInstruction;
 }
-// 250 285
+  // 250 285
 // The memory parameter is here because almost all instruction are acessed by
 // pointer through an array, and by default all data is sent via chip8 and 
 // memory, if this instruction didn't have memory in it's parameters, the program

@@ -9,6 +9,7 @@ enum Chip8_Constants {
   kChip8MaxRAMSize = 4096, kChip8MaxStackSize = 16,
   // Chip8 screen specs is 64 by 32 pixels
   kChip8ScreenLenght = 64, kChip8ScreenHeight = 32, kChip8FontSetSize = 80,
+  kChip8Background = 0, kChip8Foreground = 0xFFFFFFFFF,
 
   // General perpose registers 
   kChip8V0 = 0, kChip8V1 = 1, kChip8V2 = 2, kChip8V3 = 3, kChip8V4 = 4,
@@ -32,7 +33,7 @@ enum Chip8_InputMask {
   kChip8KeyPad6 = 0x0040, kChip8KeyPad7 = 0x0080, kChip8KeyPad8 = 0x0100,
   kChip8KeyPad9 = 0x0200, kChip8KeyPadA = 0x0400, kChip8KeyPadB = 0x0800,
   kChip8KeyPadC = 0x1000, kChip8KeyPadD = 0x2000, kChip8KeyPadE = 0x4000,
-  kChip8KeyPadF = 0x8000
+  kChip8KeyPadF = 0x8000, kChip8KeyPadNull = 0xCC
 };
 typedef struct Register{
   uint16_t index;

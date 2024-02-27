@@ -52,7 +52,6 @@ void Chip8_InitializeMemory(Chip8* chip8) {
 
 // Sets the Chip8 font in memory
 void Chip8_InitializeFontSet(Chip8* chip8) {
-  size_t i;
 
   const uint8_t kChip8FontsetData[] = {
     // 0

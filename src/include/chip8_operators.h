@@ -10,13 +10,15 @@ enum NibbleBitMask {
 extern inline uint16_t Chip8_MoveNibbleRight(
   uint16_t value, uint8_t x_amount_of_places
 );
+extern uint8_t Chip8ConvertInputToHex(uint16_t input);
+extern uint8_t Chip8_ReadHexFromWord(uint16_t value, uint8_t pos);
 extern inline uint8_t Chip8_ReadLoByteFromWord(uint16_t value);
 extern inline uint8_t Chip8_ReadForthNibble(uint16_t value);
 extern inline uint8_t Chip8_ReadThirdNibble(uint16_t value);
 extern inline uint8_t Chip8_ReadSecondNibble(uint16_t value);
 extern inline uint8_t Chip8_ReadFirstNibble(uint16_t value);
-
-// Bitwise Operations
+extern uint8_t Chip8_ReadBitFromByte(uint8_t value, uint8_t pos);
+    // Bitwise Operations
 
 extern void Chip8_RegisterXBitwiseAndData(uint8_t*      register_x,
                                     const uint8_t kData);

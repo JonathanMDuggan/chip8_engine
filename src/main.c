@@ -8,6 +8,8 @@
 #include "include/chip8_emulation.h"
 int main(int argc, char** argv){
   CHIP8_LOG_INFO("Launching Chip8 Engine in _DEBUG mode!\n");
-  Chip8_Emulate("ROM/IBM Logo.ch8");
+  if (Chip8_Emulate("ROM/IBM Logo.ch8") == EXIT_FAILURE) {
+    CHIP8_LOG_INFO("FAILED TO EMULATE\n");
+  }
   return EXIT_SUCCESS;
 } 
