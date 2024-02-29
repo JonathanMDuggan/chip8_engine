@@ -297,7 +297,7 @@ void Chip8_IndexRegisterFill_Fx65(Chip8*   chip8,
 void Chip8_ShiftRegisterXLeft_8xyE(Chip8* chip8, uint16_t memory){
   if (Chip8_ReadForthNibble(chip8->_register->general_perpose[
                             Chip8_ReadThirdNibble(memory)]) == 1) {
-    *(chip8->_register->status) = (uint8_t)1;
+    *(chip8->_register->status) = 1;
   }
   else {
     *(chip8->_register->status) = 0;
@@ -348,28 +348,36 @@ void Chip8_IndexStoreIteratorFx55(Chip8* chip8, uint16_t memory) {
 // I know this will be the hardest function to create, I have no idea
 // What i'm doing
 void Chip8_Display_Dxyn(Chip8* chip8, uint16_t memory) {
+  printf("[!!] CHIP-8: DXYN!\n");
   uint8_t n = Chip8_ReadFirstNibble(memory);
   uint8_t x =
       chip8->_register->general_perpose[Chip8_ReadThirdNibble(memory)] % 64;
   uint8_t y =
       chip8->_register->general_perpose[Chip8_ReadSecondNibble(memory)] % 32;
   *(chip8->_register->status) = 0;
-  uint8_t pixel;
+  uint8_t is_pixel_on = 0;
 
   for (uint8_t i = 0; i < n; i++) {
-    for (uint8_t j = 0; j < 8; j++) {
-      pixel = Chip8_ReadBitFromByte(chip8->memory[chip8->_register->index + i], j);
+    for (uint8_t j = 7; j != 255; j--) {
+
+      is_pixel_on = Chip8_ReadBitFromByte(chip8->memory[chip8->_register->index + i], j);
       
-      if (pixel && chip8->screen[(x + i) % 64][(y + j) % 32] == kChip8Foreground) {
-        chip8->screen[(x + i) % 64][(y + j) % 32] ^= kChip8Foreground;
-        *(chip8->_register->status) = 1;
-        continue;
+      if (is_pixel_on) {
+        chip8->screen[(x + j) % 64][(y + i) % 32] ^= kChip8Foreground;
+        if (chip8->screen[(x + j) % 64][(y + i) % 32] == kChip8Foreground) {
+          *(chip8->_register->status) = 1;
+        }
       }
 
-      if (pixel) {
-        chip8->screen[(x + i) % 64][(y + j) % 32] ^= kChip8Foreground;
+      if (x >= kChip8ScreenLenght) {
+        break;
       }
     }
+
+    if (y >= kChip8ScreenHeight) {
+      break;
+    }
+
   }
   chip8->_register->program_counter += kChip8NextInstruction;
 }

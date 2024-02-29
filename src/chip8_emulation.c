@@ -26,9 +26,9 @@ uint8_t Chip8_Emulate(const char* file_name) {
   if (Chip8_SDLInitialize(&chip8, &sdl) == EXIT_FAILURE) emulating = FALSE;
   
   while (emulating) {
-    Chip8_SDLRender(&sdl);
     Chip8_ProcessInstruction(&chip8, opcode);
     Chip8_SDLReadInput(&chip8, &sdl, &emulating);
+    Chip8_SDLRender(&chip8, &sdl);
   }
 
   Chip8_SDLQuit(&sdl);
@@ -265,11 +265,11 @@ void Chip8_CreateAddressOpcodeTable(Chip8_OpcodeHandler execute[]) {
   execute[kLDIaddr].instruction  = Chip8_StoreMemoryInIndexRegister_Annn;
   execute[kJPV0addr].instruction = Chip8_JumpToLocationInMemoryPlusRegister0_Bnnn;
 #ifdef _DEBUG
-  execute[0].kAssembly           = "0x%03x 0x%04x  JP    V%03x \n";
-  execute[kJPaddr].kAssembly     = "0x%03x 0x%04x  JP    V%03x \n";
-  execute[kCALLaddr].kAssembly   = "0x%03x 0x%04x  CALL  V%03x \n";
-  execute[kLDIaddr].kAssembly    = "0x%03x 0x%04x  LD[I] V%03x \n";
-  execute[kJPV0addr].kAssembly   = "0x%03x 0x%04x  JPV   V%03x \n";
+  execute[0].kAssembly           = "0x%03x 0x%04x  JP    k%03x \n";
+  execute[kJPaddr].kAssembly     = "0x%03x 0x%04x  JP    k%03x \n";
+  execute[kCALLaddr].kAssembly   = "0x%03x 0x%04x  CALL  k%03x \n";
+  execute[kLDIaddr].kAssembly    = "0x%03x 0x%04x  LD[I] k%03x \n";
+  execute[kJPV0addr].kAssembly   = "0x%03x 0x%04x  JPV   k%03x \n";
 #endif
   // There are no instructions for numbers 3 to 9, use a nop if called.
   for (size_t i = 3; i < 0xA; i++) {
@@ -294,11 +294,11 @@ void Chip8_CreateMemoryOpcodeTable(Chip8_OpcodeHandler execute[]) {
   execute[kADDVxbyte].instruction = Chip8_AddMemoryToRegisterX_7xkk;
   execute[kRNDVxbyte].instruction = Chip8_SetRegisterXToRandomByteANDMemory_Cxkk;
 #ifdef _DEBUG
-  execute[kSEVxbyte].kAssembly =  "0x%03x 0x%04x  SE    V%02x\n";
-  execute[kSNEVxbyte].kAssembly = "0x%03x 0x%04x  SNE   V%02x\n";
-  execute[kLDVxbyte].kAssembly =  "0x%03x 0x%04x  LD    V%02x\n";
-  execute[kADDVxbyte].kAssembly = "0x%03x 0x%04x  ADD   V%02x\n";
-  execute[kRNDVxbyte].kAssembly = "0x%03x 0x%04x  RND   V%02x\n";
+  execute[kSEVxbyte].kAssembly =  "0x%03x 0x%04x  SE    V%02x k%02x\n";
+  execute[kSNEVxbyte].kAssembly = "0x%03x 0x%04x  SNE   V%02x k%02x\n";
+  execute[kLDVxbyte].kAssembly =  "0x%03x 0x%04x  LD    V%02x k%02x\n";
+  execute[kADDVxbyte].kAssembly = "0x%03x 0x%04x  ADD   V%02x k%02x\n";
+  execute[kRNDVxbyte].kAssembly = "0x%03x 0x%04x  RND   V%02x k%02x\n";
 #endif
   for (size_t i = 8; i < 0xC; i++) {
     execute[i].instruction = Chip8_NOP;
@@ -330,7 +330,7 @@ void Chip8_PrintMemoryAssembly(Chip8* chip8, uint16_t opcode,
   sprintf_s(buffer, sizeof(buffer), kAssemblyMessage,
             chip8->_register->program_counter, opcode,
             chip8->_register->general_perpose[Chip8_ReadThirdNibble(opcode)],
-            chip8->memory[chip8->_register->program_counter]);
+            chip8->memory[chip8->_register->program_counter + 1]);
   CHIP8_LOG_INSTRUCTION("%s", buffer);
 }
 
