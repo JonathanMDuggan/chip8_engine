@@ -72,7 +72,7 @@ uint8_t Chip8_SDLInitialize(Chip8* chip8, SDL* sdl) {
   return 0;
 }
 
-void Chip8_SDLReadInput(Chip8* chip8, SDL* sdl, uint8_t* emulator_is_running) {
+void Chip8_SDLReadInput(Chip8* chip8, SDL* sdl, uint8_t* emulating) {
   SDL_Event event;
   Mouse mouse = {0};
   char last_key[20] = "test1";
@@ -92,7 +92,7 @@ void Chip8_SDLReadInput(Chip8* chip8, SDL* sdl, uint8_t* emulator_is_running) {
 
   switch (event.type) {
     case SDL_QUIT:
-      emulator_is_running = FALSE;
+      *emulating = FALSE;
       break;
 
     case SDL_KEYDOWN:
@@ -122,21 +122,33 @@ void Chip8_SDLReadInput(Chip8* chip8, SDL* sdl, uint8_t* emulator_is_running) {
         break;
       }
   }
-
 }
 
-void Chip8_SDLRender(SDL* sdl) {
-  // We must clear the screen and draw it every emulated frame
-  SDL_SetRenderDrawColor(sdl->renderer, 0, 0, 0, 255);
+void Chip8_SDLRender(Chip8* chip8, SDL* sdl) {
+  SDL_Rect srcrect = {0,0,0,0};
+
+  const uint32_t pixel_lenght = kChip8DefaultWindowLength / kChip8ScreenLenght;
+  const uint32_t pixel_height = kChip8DefaultWindowHeight / kChip8ScreenHeight;
+  
+  srcrect.w = pixel_lenght;
+  srcrect.h = pixel_height;
+
+  SDL_SetRenderDrawColor(sdl->renderer, 0x00, 0x00, 0x00, 0xFF);
   SDL_RenderClear(sdl->renderer);
-  // Now we do our little drawing
-  // NOTE TO PRORGAMMER: This is my first time using SDL
-  //
-  // To renderer something on the screen you MUST chose a color before you
-  // Draw a line.
-  SDL_SetRenderDrawColor(sdl->renderer, 255, 255, 255, 255);
-  SDL_RenderDrawLine(sdl->renderer, 5, 5, 100, SDL_ALPHA_OPAQUE);
-  // This shows what we've drawn
+  for (uint8_t y = 0; y < kChip8ScreenHeight; y++) {  
+
+    srcrect.y = y * pixel_height;
+
+    for (uint8_t x = 0; x < kChip8ScreenLenght; x++) {
+
+      srcrect.x = x * pixel_lenght;
+
+      if (chip8->screen[x][y] != 0) {
+        SDL_SetRenderDrawColor(sdl->renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+        SDL_RenderFillRect(sdl->renderer, &srcrect);
+      }
+    }
+  }
   SDL_RenderPresent(sdl->renderer);
 }
 
