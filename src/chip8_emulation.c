@@ -13,11 +13,18 @@
 
 uint8_t Chip8_Emulate(const char* file_name) {
   Chip8 chip8 = {0};
-  Register _register = {0};
+  Register reg = {0};
   SDL sdl;
   uint16_t opcode = 0;
   uint8_t emulating = TRUE;
-  chip8._register = &_register;
+  
+  Chip8_OpcodeHandler nnn_opcode_table[kOpcodeNNNLargestIdentifier + 1];
+  Chip8_OpcodeHandler kk_opcode_table[kOpcodeKKLargestIdentifier + 1];
+  Chip8_OpcodeHandler _8xy_opcode_table[kOpcode8LargestIdentifier + 1];
+  Chip8_OpcodeHandler fx_opcode_table[kOpcodeFLargestIdentifier + 1];
+  Chip8_OpcodeHandler xy_opcode_table[kOpcodeXYLargestIdentifier + 1];
+
+  chip8.reg = &reg;
 
   Chip8_InitializeRegisters(&chip8);
   Chip8_InitializeMemory(&chip8);
@@ -25,8 +32,16 @@ uint8_t Chip8_Emulate(const char* file_name) {
   if (Chip8_ReadFile(&chip8, file_name) == EXIT_FAILURE) emulating = FALSE;
   if (Chip8_SDLInitialize(&chip8, &sdl) == EXIT_FAILURE) emulating = FALSE;
   
+  // Create opcode table
+
+  Chip8_CreateNNNOpcodeTable(&nnn_opcode_table);
+  Chip8_CreateKKOpcodeTable(&kk_opcode_table);
+  Chip8_Create8xyOpcodeTable(&_8xy_opcode_table);
+  Chip8_CreateFxOpcodeTable(&fx_opcode_table);
+
   while (emulating) {
-    Chip8_ProcessInstruction(&chip8, opcode);
+    Chip8_ProcessInstruction(&chip8, opcode, &nnn_opcode_table,
+                             &kk_opcode_table, &_8xy_opcode_table, &fx_opcode_table);
     Chip8_SDLReadInput(&chip8, &sdl, &emulating);
     Chip8_SDLRender(&chip8, &sdl);
   }
@@ -34,143 +49,17 @@ uint8_t Chip8_Emulate(const char* file_name) {
   Chip8_SDLQuit(&sdl);
   return EXIT_SUCCESS;
 }
-// I do break the 80 col rule here, but if I followed it, it would make this code
-// pretty hard to debug
-void Chip8_OpcodesStartsWith0(Chip8* chip8, uint16_t opcode) {
-  uint8_t least_significant_byte = Chip8_ReadLoByteFromWord(opcode);
-  switch (least_significant_byte) {
-    case CLS:
-      CHIP8_LOG_INSTRUCTION("0x%03x 0x%04x  CLS\n",
-                            chip8->_register->program_counter, opcode);
-      Chip8_ClearDisplay_00E0(chip8, opcode);
-      break;
-    case RET:
-      CHIP8_LOG_INSTRUCTION("0x%03x 0x%04x  RET 0x%04x\n",
-                            chip8->_register->program_counter, opcode,
-                            chip8->stack[chip8->_register->stack_pointer]);
-      Chip8_Return_00EE(chip8, opcode);
-      break;
-      // If for some reason the ROM uses the old jump to location execute
-      // call this instruction instead
-    default:
-      CHIP8_LOG_INSTRUCTION("0x%03x 0x%04x  NOP\n",
-                            chip8->_register->program_counter, opcode);
-      Chip8_JumpToLocation_1nnn(chip8, opcode);
-      break;
-  }
-}
 
-void Chip8_OpcodeStartsAt2To7(Chip8* chip8, uint16_t opcode) {
-  uint8_t most_significant_nibble = Chip8_ReadForthNibble(opcode);
-  switch (most_significant_nibble) {
-    case SEVxVy:
-      Chip8_SkipNextInstrucionIfRegisterXEqualRegisterY_5xy0(chip8, opcode);
-      break;
-  }
-}
-
-void Chip8_OpcodeStartsWith8(Chip8* chip8, uint16_t opcode) {
-  Chip8_OpcodeHandler execute[kNumberOfOpcodesThatStartWith8 + 1];
-  Chip8_Execute(chip8, opcode, Chip8_ReadForthNibble(opcode),
-                kNumberOfOpcodesThatStartWith8,
-                Chip8_CreateArithmeticOpcodeTable, execute,
-                kOpcodeStartsWith8NOP, Chip8_PrintArithmeticAssembly);
-}
-
-void Chip8_OpcodeNNN(Chip8* chip8, uint16_t opcode) {
-  Chip8_OpcodeHandler execute[kOpcodeNNNFunctionPointerArraySize + 1];
-
-  Chip8_Execute(chip8, opcode, Chip8_ReadForthNibble(opcode),
-                kOpcodeNNNFunctionPointerArraySize,
-                Chip8_CreateAddressOpcodeTable, execute, kOpcodeNNNNOP, Chip8_PrintAddressAssembly);
-  return;
-}
-
-void Chip8_OpcodeKK(Chip8* chip8, uint16_t opcode) {
-  Chip8_OpcodeHandler execute[kOpcodeKKFunctionPointerArraySize + 1];
-  Chip8_Execute(chip8, opcode, Chip8_ReadForthNibble(opcode),
-                kOpcodeKKFunctionPointerArraySize,
-                Chip8_CreateMemoryOpcodeTable, execute, kOpcodeKKNOP, Chip8_PrintMemoryAssembly);
-}
-
-void Chip8_Execute(
-    Chip8* chip8, uint16_t opcode, uint8_t kIdentifier,
-    const uint8_t kFunctionPointerArraySize,
-    void (*CreateFunctionPointerArray)(Chip8_OpcodeHandler* mnemonic),
-    Chip8_OpcodeHandler execute[], const uint8_t kNOP,
-    void (*PrintAssembly)(Chip8* chip8, uint16_t opcode, const char* kAssembly))
-    {
-  if (kIdentifier >= kFunctionPointerArraySize) {
-    kIdentifier = kNOP;
-  }
-  CreateFunctionPointerArray(execute);
-#ifdef _DEBUG
-  PrintAssembly(chip8, opcode, execute[kIdentifier].kAssembly);
-#endif
-  execute[kIdentifier].instruction(chip8, opcode);
-}
-
-void Chip8_OpcodeStartsAt9ToE(Chip8* chip8, uint16_t opcode) {
-  uint8_t least_significant_byte = Chip8_ReadLoByteFromWord(opcode);
-  uint8_t most_significant_nibble = Chip8_ReadForthNibble(opcode);
-  switch (most_significant_nibble) {
-    case kSNEVxVy:
-      Chip8_SkipIfRegisterXDoesNotEqualStatusRegister_9xy0(chip8, opcode);
-      break;
-    case kDRWVxVyNibble:
-      Chip8_Display_Dxyn(chip8, opcode);
-      break;
-    case kE:
-
-      if (least_significant_byte == kSKPVx) {
-        Chip8_SkipIfKeyIsPressed_Ex9E(chip8, opcode);
-        break;
-      }
-      if (least_significant_byte == SKNPVx) {
-        Chip8_SkipIfKeyIsNotPressed_ExA1(chip8, opcode);
-        break;
-      }
-  }
-}
-
-void Chip8_OpcodeStartsWithF(Chip8* chip8, uint16_t opcode) {
-  uint8_t least_significant_byte = Chip8_ReadLoByteFromWord(opcode);
-  switch (least_significant_byte) {
-    case kLDVxDT:
-      Chip8_RegisterEqualDelayTimer_Fx07(chip8, opcode);
-      break;
-    case kLDVxK:
-      Chip8_StoreKeyPressInRegisterX_Fx0A(chip8, opcode);
-      break;
-    case kLDDTVx:
-      Chip8_Fx15(chip8, opcode);
-      break;
-    case kLDSTVx:
-      Chip8_SetSoundTimerToRegisterX_Fx18(chip8, opcode);
-      break;
-    case kADDIVx:
-      Chip8_IndexPlusRegisterX_Fx1E(chip8, opcode);
-      break;
-    case kLDFVx:
-      Chip8_IndexEqualsRegisterX_Fx29(chip8, opcode);
-      break;
-    case kLDBVx:
-      Chip8_BCDConversion_Fx33(chip8, opcode);
-      break;
-    case kLDIVx:
-      Chip8_IndexStoreIteratorFx55(chip8, opcode);
-      break;
-    case kLDVxI:
-      Chip8_IndexRegisterFill_Fx65(chip8, opcode);
-      break;
-  }
-}
-
-void Chip8_ProcessInstruction(Chip8* chip8, uint16_t opcode) {
+void Chip8_ProcessInstruction(Chip8* chip8, uint16_t opcode,
+                              Chip8_OpcodeHandler* nnn,
+                              Chip8_OpcodeHandler* kk,
+                              Chip8_OpcodeHandler* _8xy,
+                              Chip8_OpcodeHandler* fx) {
+  uint8_t kIdentifierForFandE = Chip8_ReadLoByteFromWord(opcode);
   uint8_t kIdentifier;
-  opcode = chip8->memory[chip8->_register->program_counter];
+  opcode = chip8->memory[chip8->reg->program_counter];
   opcode <<= 8;
-  opcode |= chip8->memory[chip8->_register->program_counter + 1];
+  opcode |= chip8->memory[chip8->reg->program_counter + 1];
 
   kIdentifier = Chip8_ReadForthNibble(opcode);
 
@@ -178,29 +67,77 @@ void Chip8_ProcessInstruction(Chip8* chip8, uint16_t opcode) {
     Chip8_OpcodesStartsWith0(chip8, opcode);
     return;
   }
+
   // All NNN opcodes start with 1,2 and A,B
   if (Chip8_IsNNNOpcode(kIdentifier)) {
-    Chip8_OpcodeNNN(chip8, opcode);
-    return;
+    if (kIdentifier > kOpcodeNNNLargestIdentifier) {
+      kIdentifier = kOpcodeNNNNOP;
+    }
+#ifdef _DEBUG
+      Chip8_PrintNNNAssembly(chip8, opcode, nnn[kIdentifier].kAssembly);
+#endif
+      nnn[kIdentifier].instruction(chip8, opcode);
+
   }
 
   if (Chip8_IsKKOpcode(kIdentifier)) {
-    Chip8_OpcodeKK(chip8, opcode);
+    if (kIdentifier > kOpcodeKKLargestIdentifier) {
+      kIdentifier = kOpcodeKKNOP;
+    }
+     
+#ifdef _DEBUG
+    Chip8_PrintKKAssembly(chip8, opcode, kk[kIdentifier].kAssembly);
+#endif
+    kk[kIdentifier].instruction(chip8, opcode);
     return;
   }
+
 
   if (kIdentifier == 8) {
-    Chip8_OpcodeStartsWith8(chip8, opcode);
+    if (kIdentifier > kOpcode8LargestIdentifier) {
+      kIdentifier = kOpcodeStartsWith8NOP;
+    }
+#ifdef _DEBUG
+    Chip8_PrintXYAssembly(chip8, opcode, _8xy[kIdentifier].kAssembly);
+#endif
+    _8xy[kIdentifier].instruction(chip8, opcode);
     return;
   }
 
+
   if (kIdentifier == 0xF) {
-    Chip8_OpcodeStartsWithF(chip8, opcode);
-    return;
-  } 
-  else {
-    Chip8_OpcodeStartsAt9ToE(chip8, opcode);
-    return;
+#ifdef _DEBUG
+    Chip8_PrintXAssembly(chip8, opcode, fx[kIdentifierForFandE].kAssembly);
+#endif
+    fx[kIdentifierForFandE].instruction(chip8, opcode);
+  }
+
+
+}
+
+// I do break the 80 col rule here, but if I followed it, it would make this code
+// pretty hard to debug
+void Chip8_OpcodesStartsWith0(Chip8* chip8, uint16_t opcode) {
+  uint8_t least_significant_byte = Chip8_ReadLoByteFromWord(opcode);
+  switch (least_significant_byte) {
+    case CLS:
+      CHIP8_LOG_INSTRUCTION("0x%03x 0x%04x  CLS\n",
+                            chip8->reg->program_counter, opcode);
+      Chip8_ClearDisplay_00E0(chip8, opcode);
+      break;
+    case RET:
+      CHIP8_LOG_INSTRUCTION("0x%03x 0x%04x  RET 0x%04x\n",
+                            chip8->reg->program_counter, opcode,
+                            chip8->stack[chip8->reg->stack_pointer]);
+      Chip8_Return_00EE(chip8, opcode);
+      break;
+      // If for some reason the ROM uses the old jump to location kk
+      // call this instruction instead
+    default:
+      CHIP8_LOG_INSTRUCTION("0x%03x 0x%04x  NOP\n",
+                            chip8->reg->program_counter, opcode);
+      Chip8_JumpToLocation_1nnn(chip8, opcode);
+      break;
   }
 }
 
@@ -223,31 +160,31 @@ uint8_t Chip8_IsKKOpcode(const uint8_t kIdentifier) {
 // These opcodes were my absolute favourate. Almost all of them went from
 // 0 to 6, all of them took the same argurments (two chip8 registers) 
 // tldr: all the xy0 functions but 9xy0, 5xy0 and Dxyn
-void Chip8_CreateArithmeticOpcodeTable(Chip8_OpcodeHandler execute[]) {
+void Chip8_Create8xyOpcodeTable(Chip8_OpcodeHandler _8xy[]) {
 
-  execute[kLDVxVy].instruction  = Chip8_LoadRegisterYToRegsiterX_8xy0;
-  execute[kORVxVy].instruction  = Chip8_BitwiseOrRegisterXByRegisterY_8xy1;
-  execute[kANDVxVy].instruction = Chip8_BitwiseAndRegisterXByRegisterY_8xy2;
-  execute[kXORVxVy].instruction = Chip8_BitwiseXorRegisterXByRegisterY_8xy3;
-  execute[kADDVxVy].instruction = Chip8_AddRegisterXByRegisterY_8xy4;
-  execute[kSUBVxVy].instruction = Chip8_SubRegisterXByRegisterY_8xy5;
-  execute[kSHRVxVy].instruction = Chip8_ShiftRegisterXRight_8xy6;
-  execute[kSHLVxVy].instruction = Chip8_ShiftRegisterXLeft_8xyE;
+  _8xy[kLDVxVy].instruction  = Chip8_LoadRegisterYToRegsiterX_8xy0;
+  _8xy[kORVxVy].instruction  = Chip8_BitwiseOrRegisterXByRegisterY_8xy1;
+  _8xy[kANDVxVy].instruction = Chip8_BitwiseAndRegisterXByRegisterY_8xy2;
+  _8xy[kXORVxVy].instruction = Chip8_BitwiseXorRegisterXByRegisterY_8xy3;
+  _8xy[kADDVxVy].instruction = Chip8_AddRegisterXByRegisterY_8xy4;
+  _8xy[kSUBVxVy].instruction = Chip8_SubRegisterXByRegisterY_8xy5;
+  _8xy[kSHRVxVy].instruction = Chip8_ShiftRegisterXRight_8xy6;
+  _8xy[kSHLVxVy].instruction = Chip8_ShiftRegisterXLeft_8xyE;
 #ifdef _DEBUG
-  execute[kLDVxVy].kAssembly    = "0x%03x 0x%04x  LD   V%01x, V%01x\n";
-  execute[kORVxVy].kAssembly    = "0x%03x 0x%04x  OR   V%01x, V%01x\n";
-  execute[kANDVxVy].kAssembly   = "0x%03x 0x%04x  AND  V%01x, V%01x\n";
-  execute[kXORVxVy].kAssembly   = "0x%03x 0x%04x  XOR  V%01x, V%01x\n";
-  execute[kADDVxVy].kAssembly   = "0x%03x 0x%04x  ADD  V%01x, V%01x\n";
-  execute[kSUBVxVy].kAssembly   = "0x%03x 0x%04x  SUB  V%01x, V%01x\n";
-  execute[kSHRVxVy].kAssembly   = "0x%03x 0x%04x  SHR  V%01x, V%01x\n";
-  execute[kSHLVxVy].kAssembly   = "0x%03x 0x%04x  SHL  V%01x, V%01x\n";
+  _8xy[kLDVxVy].kAssembly  = "0x%03x 0x%04x  LD   V%01x, V%01x\n";
+  _8xy[kORVxVy].kAssembly  = "0x%03x 0x%04x  OR   V%01x, V%01x\n";
+  _8xy[kANDVxVy].kAssembly = "0x%03x 0x%04x  AND  V%01x, V%01x\n";
+  _8xy[kXORVxVy].kAssembly = "0x%03x 0x%04x  XOR  V%01x, V%01x\n";
+  _8xy[kADDVxVy].kAssembly = "0x%03x 0x%04x  ADD  V%01x, V%01x\n";
+  _8xy[kSUBVxVy].kAssembly = "0x%03x 0x%04x  SUB  V%01x, V%01x\n";
+  _8xy[kSHRVxVy].kAssembly = "0x%03x 0x%04x  SHR  V%01x, V%01x\n";
+  _8xy[kSHLVxVy].kAssembly = "0x%03x 0x%04x  SHL  V%01x, V%01x\n";
 #endif
   // There are no instructions for numbers 7 to 13, use a nop if called.
   for (size_t i = 7; i < 0xE; i++) {
-    execute[i].instruction = Chip8_NOP;
+    _8xy[i].instruction = Chip8_NOP;
 #ifdef _DEBUG
-    execute[i].kAssembly   = "0x%03x 0x%04x  NOP  V%01x, V%01x\n";
+    _8xy[i].kAssembly   = "0x%03x 0x%04x  NOP  V%01x, V%01x\n";
 #endif
   }
   return;
@@ -255,27 +192,27 @@ void Chip8_CreateArithmeticOpcodeTable(Chip8_OpcodeHandler execute[]) {
 
 // If the Assembly message requires the memory address and nothing else.
 // tdlr: all the NNN functions
-void Chip8_CreateAddressOpcodeTable(Chip8_OpcodeHandler execute[]) {
+void Chip8_CreateNNNOpcodeTable(Chip8_OpcodeHandler nnn[]) {
   // Rare. but there are some chip8 programs that use 0 to jump to a location
-  // the execute 0 instruction won't be called ever, but leaving it there to fill
+  // the kk 0 instruction won't be called ever, but leaving it there to fill
   // the array.
-  execute[0].instruction = Chip8_NOP;
-  execute[kJPaddr].instruction   = Chip8_JumpToLocation_1nnn;
-  execute[kCALLaddr].instruction = Chip8_Call_2nnn;
-  execute[kLDIaddr].instruction  = Chip8_StoreMemoryInIndexRegister_Annn;
-  execute[kJPV0addr].instruction = Chip8_JumpToLocationInMemoryPlusRegister0_Bnnn;
+  nnn[0].instruction = Chip8_NOP;
+  nnn[kJPaddr].instruction   = Chip8_JumpToLocation_1nnn;
+  nnn[kCALLaddr].instruction = Chip8_Call_2nnn;
+  nnn[kLDIaddr].instruction  = Chip8_StoreMemoryInIndexRegister_Annn;
+  nnn[kJPV0addr].instruction = Chip8_JumpToLocationInMemoryPlusRegister0_Bnnn;
 #ifdef _DEBUG
-  execute[0].kAssembly           = "0x%03x 0x%04x  JP    k%03x \n";
-  execute[kJPaddr].kAssembly     = "0x%03x 0x%04x  JP    k%03x \n";
-  execute[kCALLaddr].kAssembly   = "0x%03x 0x%04x  CALL  k%03x \n";
-  execute[kLDIaddr].kAssembly    = "0x%03x 0x%04x  LD[I] k%03x \n";
-  execute[kJPV0addr].kAssembly   = "0x%03x 0x%04x  JPV   k%03x \n";
+  nnn[0].kAssembly           = "0x%03x 0x%04x  JP    k%03x \n";
+  nnn[kJPaddr].kAssembly     = "0x%03x 0x%04x  JP    k%03x \n";
+  nnn[kCALLaddr].kAssembly   = "0x%03x 0x%04x  CALL  k%03x \n";
+  nnn[kLDIaddr].kAssembly    = "0x%03x 0x%04x  LD[I] k%03x \n";
+  nnn[kJPV0addr].kAssembly   = "0x%03x 0x%04x  JPV   k%03x \n";
 #endif
   // There are no instructions for numbers 3 to 9, use a nop if called.
   for (size_t i = 3; i < 0xA; i++) {
-    execute[i].instruction = Chip8_NOP;
+    nnn[i].instruction = Chip8_NOP;
 #ifdef _DEBUG
-    execute[i].kAssembly   = "0x%03x 0x%04x  NOP  V%03x \n";
+    nnn[i].kAssembly   = "0x%03x 0x%04x  NOP  V%03x \n";
 #endif
   }
   return;
@@ -284,73 +221,138 @@ void Chip8_CreateAddressOpcodeTable(Chip8_OpcodeHandler execute[]) {
 // tdlr: all the KK functions
 // I understand this is against the number of col rule, it was just really hard
 // to read without breaking the rules
-void Chip8_CreateMemoryOpcodeTable(Chip8_OpcodeHandler execute[]) {
+void Chip8_CreateKKOpcodeTable(Chip8_OpcodeHandler kk[]) {
 
-  execute[kSEVxbyte].instruction  = Chip8_SkipNextInstrucionIfRegisterXEqualMemory_3xkk;
-  execute[kSNEVxbyte].instruction = Chip8_SkipNextInstrucionIfRegisterXDoesNotEqualMemory_4xkk;
-  // This execute is a Register Register funny
-  execute[5].instruction = Chip8_NOP;
-  execute[kLDVxbyte].instruction  = Chip8_LoadMemoryToRegisterX_6xkk;
-  execute[kADDVxbyte].instruction = Chip8_AddMemoryToRegisterX_7xkk;
-  execute[kRNDVxbyte].instruction = Chip8_SetRegisterXToRandomByteANDMemory_Cxkk;
+  kk[kSEVxbyte].instruction  = Chip8_SkipNextInstrucionIfRegisterXEqualMemory_3xkk;
+  kk[kSNEVxbyte].instruction = Chip8_SkipNextInstrucionIfRegisterXDoesNotEqualMemory_4xkk;
+  // This kk is a Register Register funny
+  kk[5].instruction = Chip8_NOP;
+  kk[kLDVxbyte].instruction  = Chip8_LoadMemoryToRegisterX_6xkk;
+  kk[kADDVxbyte].instruction = Chip8_AddMemoryToRegisterX_7xkk;
+  kk[kRNDVxbyte].instruction = Chip8_SetRegisterXToRandomByteANDMemory_Cxkk;
 #ifdef _DEBUG
-  execute[kSEVxbyte].kAssembly =  "0x%03x 0x%04x  SE    V%02x k%02x\n";
-  execute[kSNEVxbyte].kAssembly = "0x%03x 0x%04x  SNE   V%02x k%02x\n";
-  execute[kLDVxbyte].kAssembly =  "0x%03x 0x%04x  LD    V%02x k%02x\n";
-  execute[kADDVxbyte].kAssembly = "0x%03x 0x%04x  ADD   V%02x k%02x\n";
-  execute[kRNDVxbyte].kAssembly = "0x%03x 0x%04x  RND   V%02x k%02x\n";
+  kk[kSEVxbyte].kAssembly  = "0x%03x 0x%04x  SE    V%02x k%02x\n";
+  kk[kSNEVxbyte].kAssembly = "0x%03x 0x%04x  SNE   V%02x k%02x\n";
+  kk[kLDVxbyte].kAssembly  = "0x%03x 0x%04x  LD    V%02x k%02x\n";
+  kk[kADDVxbyte].kAssembly = "0x%03x 0x%04x  ADD   V%02x k%02x\n";
+  kk[kRNDVxbyte].kAssembly = "0x%03x 0x%04x  RND   V%02x k%02x\n";
 #endif
   for (size_t i = 8; i < 0xC; i++) {
-    execute[i].instruction = Chip8_NOP;
+    kk[i].instruction = Chip8_NOP;
 #ifdef _DEBUG
-    execute[i].kAssembly = "0x%03x 0x%04x  NOP  V%02x\n";
+    kk[i].kAssembly = "0x%03x 0x%04x  NOP  V%02x\n";
 #endif
   }
   return;
+}
+
+void Chip8_CreateFxOpcodeTable(Chip8_OpcodeHandler fx[]) {
+  // Fill the whole array with nop, then replace the nops with with real
+  // instructions, doing with will make the code slower, but it's way easier
+  // to debug otherwise.
+  for (size_t i = 0; i < kOpcodeFLargestIdentifier; i++) {
+    fx[i].instruction = Chip8_NOP;
+#ifdef _DEBUG
+    fx[i].kAssembly = "0x%03x 0x%04x NOP V%0x1\n";
+#endif
+  }
+ 
+  fx[kLDVxDT].instruction = Chip8_RegisterEqualDelayTimer_Fx07;
+  fx[kLDVxK].instruction  = Chip8_StoreKeyPressInRegisterX_Fx0A;
+  fx[kLDDTVx].instruction = Chip8_Fx15;
+  fx[kLDSTVx].instruction = Chip8_SetSoundTimerToRegisterX_Fx18;
+  fx[kADDIVx].instruction = Chip8_IndexPlusRegisterX_Fx1E;
+  fx[kLDFVx].instruction  = Chip8_IndexEqualsRegisterX_Fx29;
+  fx[kLDBVx].instruction  = Chip8_BCDConversion_Fx33;
+  fx[kLDIVx].instruction  = Chip8_IndexStoreIteratorFx55;
+  fx[kLDVxI].instruction  = Chip8_IndexRegisterFill_Fx65;
+#ifdef _DEBUG
+  fx[kLDVxDT].kAssembly = "0x%03x 0x04x LD    V%0x1 DT\n";
+  fx[kLDVxK].kAssembly  = "0x%03x 0x04x LD    V%0x1 K\n";
+  fx[kLDDTVx].kAssembly = "0x%03x 0x04x LD DT V%0x1\n";
+  fx[kLDSTVx].kAssembly = "0x%03x 0x04x LD ST V%0x1\n";
+  fx[kADDIVx].kAssembly = "0x%03x 0x04x ADD I V%0x1\n";
+  fx[kLDFVx].kAssembly  = "0x%03x 0x04x LD F  V%0x1\n";
+  fx[kLDBVx].kAssembly  = "0x%03x 0x04x LD B  V%0x1\n";
+  fx[kLDIVx].kAssembly  = "0x%03x 0x04x LD[I] V%0x1\n";
+  fx[kLDVxI].kAssembly  = "0x%03x 0x04x LD    V%0x1 [I]\n";
+#endif
+}
+
+void CreateXYOpcodeTable(Chip8_OpcodeHandler xy[]) { 
+    for (size_t i = 0; i < kOpcodeXYLargestIdentifier; i++) {
+    xy[i].instruction = Chip8_NOP;
+#ifdef _DEBUG
+    xy[i].kAssembly = "0x%03x 0x%04x NOP V%0x1\n";
+#endif
+  }
+  xy[SEVxVy].instruction =
+      Chip8_SkipNextInstrucionIfRegisterXEqualRegisterY_5xy0;
+  xy[kSNEVxVy].instruction = Chip8_SkipIfRegisterXDoesNotEqualStatusRegister_9xy0;
+  xy[kDRWVxVyNibble].instruction = Chip8_Display_Dxyn;
+#ifdef _DEBUG
+  xy[SEVxVy].kAssembly         = "0x%03x 0x%04x  SE   V%01x, V%01x\n";
+  xy[kSNEVxVy].kAssembly       = "0x%03x 0x%04x  SNE  V%01x, V%01x\n";
+  xy[kDRWVxVyNibble].kAssembly = "0x%03x 0x%04x  DRW  V%01x, V%01x\n";
+#endif  // _DEBUG
+}
+void CreateXOpcodeTable(Chip8_OpcodeHandler x[]) { 
+  x[kSKPVx].instruction = Chip8_SkipIfKeyIsPressed_Ex9E;
+  x[SKNPVx].instruction = Chip8_SkipIfKeyIsNotPressed_ExA1;
+
+  x[kSKPVx].kAssembly = "";
+  x[SKNPVx].kAssembly = "";
 }
 // Don't bother with creating these instruction if I didn't enable the
 // Chip8 Log Instruction meme
 #ifdef _DEBUG
 
-void Chip8_PrintArithmeticAssembly(Chip8* chip8, uint16_t opcode,
+void Chip8_PrintXYAssembly(Chip8* chip8, uint16_t opcode,
                                    const char* kAssembly) {
   const char* const kAssemblyMessage = kAssembly;
-  char buffer[50];
+  const uint8_t kVx = Chip8_ReadThirdNibble(opcode);
+  const uint8_t kVy = Chip8_ReadSecondNibble(opcode);
+  char buffer[50] = {0};
+
   sprintf_s(buffer, sizeof(buffer), kAssemblyMessage,
-            chip8->_register->program_counter, opcode,
-            chip8->_register->general_perpose[Chip8_ReadThirdNibble(opcode)],
-            chip8->_register->general_perpose[Chip8_ReadSecondNibble(opcode)]);
+            chip8->reg->program_counter, opcode,
+            chip8->reg->general_perpose[kVx], chip8->reg->general_perpose[kVy]);
   CHIP8_LOG_INSTRUCTION("%s", buffer);
 }
 
-void Chip8_PrintMemoryAssembly(Chip8* chip8, uint16_t opcode,
+void Chip8_PrintKKAssembly(Chip8* chip8, uint16_t opcode,
                                const char* kAssembly) {
   const char* const kAssemblyMessage = kAssembly;
-  char buffer[50];
+  const uint8_t kVx = Chip8_ReadThirdNibble(opcode);
+  char buffer[50] = {0};
+
   sprintf_s(buffer, sizeof(buffer), kAssemblyMessage,
-            chip8->_register->program_counter, opcode,
-            chip8->_register->general_perpose[Chip8_ReadThirdNibble(opcode)],
-            chip8->memory[chip8->_register->program_counter + 1]);
+            chip8->reg->program_counter, opcode,
+            chip8->reg->general_perpose[kVx],
+            opcode);
   CHIP8_LOG_INSTRUCTION("%s", buffer);
 }
 
-void Chip8_PrintIndexAssembly(Chip8* chip8, uint16_t opcode,
+void Chip8_PrintXAssembly(Chip8* chip8, uint16_t opcode,
                               const char* kAssembly) {
   const char* const kAssemblyMessage = kAssembly;
-  char buffer[50];
+  const uint8_t kVx = Chip8_ReadThirdNibble(opcode);
+  char buffer[50] = {0};
+
   sprintf_s(buffer, sizeof(buffer), kAssemblyMessage,
-            chip8->_register->program_counter, opcode,
-            chip8->_register->general_perpose[Chip8_ReadThirdNibble(opcode)],
-            chip8->_register->index);
+            chip8->reg->program_counter, opcode,
+            chip8->reg->general_perpose[kVx]);
   CHIP8_LOG_INSTRUCTION("%s", buffer);
 }
 
-void Chip8_PrintAddressAssembly(Chip8* chip8, uint16_t opcode,
+void Chip8_PrintNNNAssembly(Chip8* chip8, uint16_t opcode,
                                 const char* kAssembly) {
   const char* const kAssemblyMessage = kAssembly;
-  char buffer[50];
+  char buffer[50] = {0};
+
   sprintf_s(buffer, sizeof(buffer), kAssemblyMessage,
-            chip8->_register->program_counter, opcode, opcode);
+            chip8->reg->program_counter, opcode, opcode);
   CHIP8_LOG_INSTRUCTION("%s", buffer);
 }
+
 #endif

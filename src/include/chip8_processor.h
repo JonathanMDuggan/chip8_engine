@@ -50,7 +50,7 @@ typedef struct Register{
 
 typedef struct Chip8{
   uint16_t opcode;
-  Register* _register;
+  Register* reg;
   uint16_t stack[kChip8MaxStackSize];
   uint8_t memory[kChip8MaxRAMSize];
 

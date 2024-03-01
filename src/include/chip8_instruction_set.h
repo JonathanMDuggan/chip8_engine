@@ -23,13 +23,15 @@ enum Chip8_Opcodes {
   kLDVxI  = 0x65,
 
   // Function Pointer Size
-  kNumberOfOpcodesThatStartWith8 = 0xF,
-  kOpcodeNNNFunctionPointerArraySize = 0xB,
+  kOpcode8LargestIdentifier = 0xF,
+  kOpcodeNNNLargestIdentifier = 0xB,
   kOpcodeStartsWith8NOP = 0xA,
   kOpcodeNNNNOP = 3,
   kMaxBufferSize = 50,
-  kOpcodeKKFunctionPointerArraySize = 0xC,
-  kOpcodeKKNOP = 5
+  kOpcodeKKLargestIdentifier = 0xC,
+  kOpcodeKKNOP = 5,
+  kOpcodeFLargestIdentifier = 0x65,
+  kOpcodeXYLargestIdentifier = 0xD
 };
 
 typedef void (*Chip8_OpcodeFunction)(Chip8*, uint16_t);
