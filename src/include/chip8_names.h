@@ -4,7 +4,7 @@
 #define FALSE 0
 enum Chip8_WindowDefaults{
   kChip8DefaultWindowHeight = 320,
-  kChip8DefaultWindowLength = 640
+  kChip8DefaultWindowLength = 640 
 };
 // LOGGING MACROS:
 // 

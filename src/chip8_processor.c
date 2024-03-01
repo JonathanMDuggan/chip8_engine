@@ -4,8 +4,8 @@
 
 void Chip8_InitializeRegisters(Chip8* chip8){
   // Set all the general perpose register to 0
-  memset(chip8->_register->general_perpose, 0, 
-         sizeof(chip8->_register->general_perpose));
+  memset(chip8->reg->general_perpose, 0, 
+         sizeof(chip8->reg->general_perpose));
   // Set the screen to black
  
   memset(chip8->screen, 0, sizeof(chip8->screen));
@@ -13,12 +13,12 @@ void Chip8_InitializeRegisters(Chip8* chip8){
   memset(chip8->stack, 0, sizeof(chip8->stack));
 
   // Point to where the programs are in memory at bootup
-  chip8->_register->program_counter = kChip8StackBase;
-  chip8->_register->stack_pointer   = 0;
-  chip8->_register->delay_timer     = 0;
-  chip8->_register->sound_timer     = 0;
-  chip8->_register->index           = 0;
-  chip8->_register->status = &chip8->_register->general_perpose[kChip8VF];
+  chip8->reg->program_counter = kChip8StackBase;
+  chip8->reg->stack_pointer   = 0;
+  chip8->reg->delay_timer     = 0;
+  chip8->reg->sound_timer     = 0;
+  chip8->reg->index           = 0;
+  chip8->reg->status = &chip8->reg->general_perpose[kChip8VF];
   
   return;
 }

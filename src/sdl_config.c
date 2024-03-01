@@ -133,7 +133,7 @@ void Chip8_SDLRender(Chip8* chip8, SDL* sdl) {
   srcrect.w = pixel_lenght;
   srcrect.h = pixel_height;
 
-  SDL_SetRenderDrawColor(sdl->renderer, 0x00, 0x00, 0x00, 0xFF);
+  SDL_SetRenderDrawColor(sdl->renderer, 0x90, 0xd3, 0x90, 0xFF);
   SDL_RenderClear(sdl->renderer);
   for (uint8_t y = 0; y < kChip8ScreenHeight; y++) {  
 
@@ -143,8 +143,8 @@ void Chip8_SDLRender(Chip8* chip8, SDL* sdl) {
 
       srcrect.x = x * pixel_lenght;
 
-      if (chip8->screen[x][y] != 0) {
-        SDL_SetRenderDrawColor(sdl->renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+      if (chip8->screen[x][y] == 0xFFFFFFFF) {
+        SDL_SetRenderDrawColor(sdl->renderer, 0x00, 0x4e, 0x10, 0xFF);
         SDL_RenderFillRect(sdl->renderer, &srcrect);
       }
     }
