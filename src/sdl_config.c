@@ -125,6 +125,8 @@ void Chip8_SDLReadInput(Chip8* chip8, SDL* sdl, uint8_t* emulating) {
 }
 
 void Chip8_SDLRender(Chip8* chip8, SDL* sdl) {
+  // Do not render anything if the chip8 didn't draw anything to the screen
+  if (chip8->draw_flag == FALSE) return;
   SDL_Rect srcrect = {0,0,0,0};
 
   const uint32_t pixel_lenght = kChip8DefaultWindowLength / kChip8ScreenLenght;
@@ -149,6 +151,8 @@ void Chip8_SDLRender(Chip8* chip8, SDL* sdl) {
       }
     }
   }
+  // Sets to 0 so this function doesn't draw the same frame again.
+  chip8->draw_flag = FALSE;
   SDL_RenderPresent(sdl->renderer);
 }
 
