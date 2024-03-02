@@ -31,7 +31,8 @@ enum Chip8_Opcodes {
   kOpcodeKKLargestIdentifier = 0xC,
   kOpcodeKKNOP = 5,
   kOpcodeFLargestIdentifier = 0x65,
-  kOpcodeXYLargestIdentifier = 0xD
+  kOpcodeXYLargestIdentifier = 0xD,
+  kOpcodeXLargestIdentifier = 0xA1,
 };
 
 typedef void (*Chip8_OpcodeFunction)(Chip8*, uint16_t);

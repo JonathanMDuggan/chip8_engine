@@ -61,7 +61,9 @@ typedef struct Chip8{
   // black you can just put the value into the SDL instruction without needing
   // to translate the CHIP-8 display output.
   uint32_t screen[kChip8ScreenLenght][kChip8ScreenHeight];
-
+  // Sets to 1 when the DRW instruction was called,
+  // Sets to 0 when SDL Render drew to the screen.
+  uint8_t draw_flag;
   // This is a 16bit variable that stores bools of 16 inputs
   uint16_t input;
 }Chip8;
