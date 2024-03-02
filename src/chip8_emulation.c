@@ -374,7 +374,7 @@ void Chip8_PrintKKAssembly(Chip8* chip8, uint16_t opcode,
                                const char* kAssembly) {
   const char* const kAssemblyMessage = kAssembly;
   const uint8_t kVx = Chip8_ReadThirdNibble(opcode);
-  const uint16_t kKK = Chip8_Read12bitFromWord(opcode);
+  const uint16_t kKK = Chip8_ReadLoByteFromWord(opcode);
   char buffer[50] = {0};
 
   sprintf_s(buffer, sizeof(buffer), kAssemblyMessage,
