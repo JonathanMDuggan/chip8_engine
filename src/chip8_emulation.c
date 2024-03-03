@@ -327,7 +327,7 @@ void Chip8_CreateXYOpcodeTable(Chip8_OpcodeHandler* xy) {
   }
   xy[SEVxVy].instruction =
       Chip8_SkipNextInstrucionIfRegisterXEqualRegisterY_5xy0;
-  xy[kSNEVxVy].instruction = Chip8_SkipIfRegisterXDoesNotEqualStatusRegister_9xy0;
+  xy[kSNEVxVy].instruction = Chip8_SkipIfRegisterXDoesNotEqualRegisterY_9xy0;
   xy[kDRWVxVyNibble].instruction = Chip8_Display_Dxyn;
 #ifdef _DEBUG
   xy[SEVxVy].kAssembly         = "0X%03X 0x%04X  SE    V%01X  V%01X\n";
@@ -405,5 +405,4 @@ void Chip8_PrintNNNAssembly(Chip8* chip8, uint16_t opcode,
             chip8->reg->program_counter, opcode, kKK);
   CHIP8_LOG_INSTRUCTION("%s", buffer);
 }
-
 #endif

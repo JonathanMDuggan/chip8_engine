@@ -10,7 +10,7 @@ int main(int argc, char** argv){
   CHIP8_LOG_INFO("Launching Chip8 Engine in _DEBUG mode!\n");
   // ROM/test_opcode.ch8
   // ROM/IBM Logo.ch8
-  if (Chip8_Emulate("ROM/IBM Logo.ch8") == EXIT_FAILURE) {
+  if (Chip8_Emulate("ROM/test_opcode.ch8") == EXIT_FAILURE) {
     CHIP8_LOG_INFO("FAILED TO EMULATE\n");
   }
   return EXIT_SUCCESS;

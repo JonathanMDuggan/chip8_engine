@@ -13,9 +13,9 @@
 // 
 // The number at the end of every instruction repersents the opcodes
 // hexadecimal value. Whenever you see any letters outside of the hexadecimal
-// space ( letter after F) that being nnn, x, or kk it means the following...
+// space ( letter after F) that being kNNN, x, or kk it means the following...
 // 
-// * nnn: The value nnn is the address to the a location in memory
+// * kNNN: The value kNNN is the address to the a location in memory
 // 
 // * kk:  Store that value into Register 'X', 'X' being any of the 16 register
 //        values in the Chip-8
@@ -48,35 +48,32 @@ void Chip8_Return_00EE(Chip8* chip8, uint16_t memory){
   // go to address 0 since it never wrote an address there.
   chip8->reg->stack_pointer--;
   // Make the program counter point to where it was before 
-  chip8->reg->program_counter = 
-    chip8->stack[chip8->reg->stack_pointer];
+  chip8->reg->program_counter = chip8->stack[chip8->reg->stack_pointer];
+  chip8->reg->program_counter += kChip8NextInstruction;
 }
 void Chip8_JumpToLocation_1nnn(Chip8* chip8, uint16_t memory){
   // Go to that location in memory.
-  const uint16_t kAddress = Chip8_Read12bitFromWord(memory);
-  chip8->reg->program_counter = kAddress;
+  const uint16_t kNNN = Chip8_Read12bitFromWord(memory);
+  chip8->reg->program_counter = kNNN;
 }
 
 // Function call Chip8 instruction
 void Chip8_Call_2nnn(Chip8* chip8, uint16_t memory){
+  const uint16_t kNNN = Chip8_Read12bitFromWord(memory);
   // Store the memory address where the program counter was before going to the
   // subroutine, that way when the program reads the call instruction, it'll
   // go back where it came from
-  chip8->stack[chip8->reg->stack_pointer] =
-    chip8->reg->program_counter;
+  chip8->stack[chip8->reg->stack_pointer] = chip8->reg->program_counter;
   // Set the program counter to the new memory address where the subroutine is
-  chip8->reg->program_counter = Chip8_Read12bitFromWord(memory);
-  // increment the stack pointer by one, so it points to a new area in the stack
-  // where it can put the memory address of another subruntine and doesn't
-  // overide the address where we came from
-  chip8->reg->program_counter += kChip8NextInstruction;
+  chip8->reg->program_counter = kNNN;
+  chip8->reg->stack_pointer++;
 }
 void Chip8_SkipNextInstrucionIfRegisterXEqualMemory_3xkk(Chip8* chip8,
                                                          uint16_t memory) {
   const uint8_t kVx = Chip8_ReadThirdNibble(memory);
-  const uint8_t kData = Chip8_ReadLoByteFromWord(memory);
+  const uint8_t kKK = Chip8_ReadLoByteFromWord(memory);
     
-  if (chip8->reg->general_perpose[kVx] == kData){
+  if (chip8->reg->general_perpose[kVx] == kKK){
       chip8->reg->program_counter += kChip8SkipNextInstruction;
       return;
   }
@@ -121,7 +118,7 @@ void Chip8_AddMemoryToRegisterX_7xkk(Chip8* chip8, uint16_t memory) {
   chip8->reg->program_counter += kChip8NextInstruction;
 }
 
-// RegisterX = RegisterY
+// kRegisterX = kRegisterY
 void Chip8_LoadRegisterYToRegsiterX_8xy0(Chip8* chip8, uint16_t memory) {
   Chip8_RegisterToRegisterOperation(chip8, memory, Chip8_RegisterXEqualData);
   chip8->reg->program_counter += kChip8NextInstruction;
@@ -129,19 +126,19 @@ void Chip8_LoadRegisterYToRegsiterX_8xy0(Chip8* chip8, uint16_t memory) {
 
 // Bitwise register operations opcodes
 
-// RegisterX OR= RegisterY
+// kRegisterX OR= kRegisterY
 void Chip8_BitwiseOrRegisterXByRegisterY_8xy1(Chip8* chip8, uint16_t memory) {
   Chip8_RegisterToRegisterOperation(chip8, memory,
                                     Chip8_RegisterXBitwiseOrData);
   chip8->reg->program_counter += kChip8NextInstruction;
 }
-// RegisterX AND= RegisterY
+// kRegisterX AND= kRegisterY
 void Chip8_BitwiseAndRegisterXByRegisterY_8xy2(Chip8* chip8, uint16_t memory) {
   Chip8_RegisterToRegisterOperation(chip8, memory,
                                     Chip8_RegisterXBitwiseAndData);
   chip8->reg->program_counter += kChip8NextInstruction;
 }
-// RegisterX XOR= RegisterY
+// kRegisterX XOR= kRegisterY
 void Chip8_BitwiseXorRegisterXByRegisterY_8xy3(Chip8* chip8, uint16_t memory) {
   const uint8_t kVx = Chip8_ReadThirdNibble(memory);
   const uint8_t kVy = Chip8_ReadSecondNibble(memory);
@@ -153,7 +150,7 @@ void Chip8_BitwiseXorRegisterXByRegisterY_8xy3(Chip8* chip8, uint16_t memory) {
 
 // Operators on registers opcodes
 
-// RegisterX += RegisterY
+// kRegisterX += kRegisterY
 void Chip8_AddRegisterXByRegisterY_8xy4(Chip8* chip8, uint16_t memory) {
   const uint8_t kVx = Chip8_ReadThirdNibble(memory);
   const uint8_t kVy = Chip8_ReadSecondNibble(memory);
@@ -166,7 +163,7 @@ void Chip8_AddRegisterXByRegisterY_8xy4(Chip8* chip8, uint16_t memory) {
   chip8->reg->general_perpose[kVx] += kRegisterY;
   chip8->reg->program_counter += kChip8NextInstruction;
 }
-// RegisterX -= RegisterY
+// kRegisterX -= kRegisterY
 void Chip8_SubRegisterXByRegisterY_8xy5(Chip8* chip8, uint16_t memory){
   const uint8_t kVx = Chip8_ReadThirdNibble(memory);
   const uint8_t kVy = Chip8_ReadSecondNibble(memory);
@@ -337,10 +334,14 @@ void Chip8_ShiftRegisterXLeft_8xyE(Chip8* chip8, uint16_t memory){
   chip8->reg->program_counter += kChip8NextInstruction;
 }
 
-void Chip8_SkipIfRegisterXDoesNotEqualStatusRegister_9xy0(Chip8* chip8,
+void Chip8_SkipIfRegisterXDoesNotEqualRegisterY_9xy0(Chip8* chip8,
                                                           uint16_t memory){
+  const uint8_t kVy = Chip8_ReadSecondNibble(memory);
   const uint8_t kVx = Chip8_ReadThirdNibble(memory);
-  if (chip8->reg->general_perpose[kVx] != *(chip8->reg->status)){
+  const uint8_t kRegisterX = chip8->reg->general_perpose[kVx];
+  const uint8_t kRegisterY = chip8->reg->general_perpose[kVy];
+
+  if (kRegisterX != kRegisterY){
     chip8->reg->program_counter += kChip8SkipNextInstruction;
     return;
   }
@@ -364,20 +365,21 @@ void Chip8_JumpToLocationInMemoryPlusRegister0_Bnnn(Chip8*   chip8,
 void Chip8_SetRegisterXToRandomByteANDMemory_Cxkk(Chip8* chip8,
                                                   uint16_t memory) {
 
-  const uint8_t kRamdomNumber  = Chip8_GetRandom8bitNumber();
-  const uint8_t kIndex = Chip8_ReadThirdNibble(memory);
+  const uint8_t kRamdomNumber = Chip8_GetRandom8bitNumber();
+  const uint8_t kVx = Chip8_ReadThirdNibble(memory);
+  const uint8_t kKK = Chip8_ReadLoByteFromWord(memory);
 
-  chip8->reg->general_perpose[kIndex] = kRamdomNumber & memory;
+  chip8->reg->general_perpose[kVx] = kRamdomNumber & kKK;
   chip8->reg->program_counter += kChip8NextInstruction;
 }
-// Stores the kData from memory to V0 to VX starting at the memory index pointed
+// Stores the kKK from memory to V0 to VX starting at the memory index pointed
 // by the index register
 void Chip8_IndexStoreIteratorFx55(Chip8* chip8, uint16_t memory) { 
   const uint8_t kRegisterIterator = Chip8_ReadThirdNibble(memory);
   const uint16_t kIndex = chip8->reg->index;
 
   for (size_t i = 0; i < kRegisterIterator; i++) {
-    chip8->memory[kIndex + i] = chip8->reg->general_perpose[i];
+    chip8->reg->general_perpose[i] = chip8->memory[kIndex + i];
   }
   chip8->reg->program_counter += kChip8NextInstruction;
 }
@@ -422,7 +424,7 @@ void Chip8_Display_Dxyn(Chip8* chip8, uint16_t memory) {
 }
   // 250 285
 // The memory parameter is here because almost all instruction are acessed by
-// pointer through an array, and by default all kData is sent via chip8 and 
+// pointer through an array, and by default all kKK is sent via chip8 and 
 // memory, if this instruction didn't have memory in it's parameters, the program
 // will crash
 void Chip8_NOP(Chip8* chip8, uint16_t memory) {

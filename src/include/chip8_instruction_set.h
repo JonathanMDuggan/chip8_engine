@@ -108,7 +108,7 @@ extern void Chip8_SubRegisterXByRegisterY_8xy5(Chip8* chip8, uint16_t memory);
 extern void Chip8_ShiftRegisterXRight_8xy6(Chip8* chip8, uint16_t memory);
 extern void Chip8_SubtractRegisterYbyRegisterX_8xy7(Chip8* chip8, uint16_t memory);
 extern void Chip8_ShiftRegisterXLeft_8xyE(Chip8* chip8, uint16_t memory);
-extern void Chip8_SkipIfRegisterXDoesNotEqualStatusRegister_9xy0(
+extern void Chip8_SkipIfRegisterXDoesNotEqualRegisterY_9xy0(
     Chip8* chip8, uint16_t memory);
 extern void Chip8_StoreMemoryInIndexRegister_Annn(Chip8*   chip8,
                                                   uint16_t opcode);
