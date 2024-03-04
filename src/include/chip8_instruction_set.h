@@ -127,7 +127,7 @@ extern void Chip8_SetSoundTimerToRegisterX_Fx18(Chip8* chip8, uint16_t memory);
 extern void Chip8_IndexPlusRegisterX_Fx1E(Chip8* chip8, uint16_t memory);
 extern void Chip8_IndexEqualsRegisterX_Fx29(Chip8* chip8, uint16_t memory);
 extern void Chip8_BCDConversion_Fx33(Chip8* chip8, uint16_t memory);
-extern void Chip8_IndexStoreIteratorFx55(Chip8* chip8, uint16_t memory);
+extern void Chip8_IndexStoreIterator_Fx55(Chip8* chip8, uint16_t memory);
 // Fills all general perpose registers with memory addresses starting at the
 // memory address stored in the index register, then sets the index register
 // to X
