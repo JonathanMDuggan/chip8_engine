@@ -303,7 +303,7 @@ void Chip8_CreateFxOpcodeTable(Chip8_OpcodeHandler* fx) {
   fx[kADDIVx].instruction = Chip8_IndexPlusRegisterX_Fx1E;
   fx[kLDFVx].instruction  = Chip8_IndexEqualsRegisterX_Fx29;
   fx[kLDBVx].instruction  = Chip8_BCDConversion_Fx33;
-  fx[kLDIVx].instruction  = Chip8_IndexStoreIteratorFx55;
+  fx[kLDIVx].instruction  = Chip8_IndexStoreIterator_Fx55;
   fx[kLDVxI].instruction  = Chip8_IndexRegisterFill_Fx65;
 #ifdef _DEBUG
   fx[kLDVxDT].kAssembly = "0x%03X 0x04X LD    V%0X1  DT\n";

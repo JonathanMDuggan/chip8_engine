@@ -15,7 +15,7 @@
 // hexadecimal value. Whenever you see any letters outside of the hexadecimal
 // space ( letter after F) that being kNNN, x, or kk it means the following...
 // 
-// * kNNN: The value kNNN is the address to the a location in memory
+// * kNNN: The value kNNN is the address to the a location in opcode
 // 
 // * kk:  Store that value into Register 'X', 'X' being any of the 16 register
 //        values in the Chip-8
@@ -35,7 +35,7 @@
 //
 //
 
-// Set the display memory to zero
+// Set the display opcode to zero
 
 void Chip8_ClearDisplay_00E0(Chip8* chip8, uint16_t memory){
   memset(chip8->screen, 0, sizeof(chip8->screen));
@@ -52,7 +52,7 @@ void Chip8_Return_00EE(Chip8* chip8, uint16_t memory){
   chip8->reg->program_counter += kChip8NextInstruction;
 }
 void Chip8_JumpToLocation_1nnn(Chip8* chip8, uint16_t memory){
-  // Go to that location in memory.
+  // Go to that location in opcode.
   const uint16_t kNNN = Chip8_Read12bitFromWord(memory);
   chip8->reg->program_counter = kNNN;
 }
@@ -60,11 +60,11 @@ void Chip8_JumpToLocation_1nnn(Chip8* chip8, uint16_t memory){
 // Function call Chip8 instruction
 void Chip8_Call_2nnn(Chip8* chip8, uint16_t memory){
   const uint16_t kNNN = Chip8_Read12bitFromWord(memory);
-  // Store the memory address where the program counter was before going to the
+  // Store the opcode address where the program counter was before going to the
   // subroutine, that way when the program reads the call instruction, it'll
   // go back where it came from
   chip8->stack[chip8->reg->stack_pointer] = chip8->reg->program_counter;
-  // Set the program counter to the new memory address where the subroutine is
+  // Set the program counter to the new opcode address where the subroutine is
   chip8->reg->program_counter = kNNN;
   chip8->reg->stack_pointer++;
 }
@@ -305,21 +305,6 @@ void Chip8_BCDConversion_Fx33(Chip8* chip8,
   chip8->reg->program_counter += kChip8NextInstruction;
 }
 
-// Fills all general perpose registers with memory addresses starting at the
-// memory address stored in the index register, then add  X + 1 to the
-// index register
-void Chip8_IndexRegisterFill_Fx65(Chip8*   chip8,  
-                                 uint16_t opcode){
-  size_t i;
-  for (i = 0; i < kChip8MaxNumberOfGeneralPerposeRegisters; i++)
-    chip8->reg->general_perpose[i] = chip8->memory[chip8->reg->index + i];
-  
-  // This behavior happened on the COSMAC VIP chip8 interpreter, modern chip8
-  // interpreters won't do this:
-  // 
-  //chip8->reg->index += Chip8_ReadThirdNibble(opcode) + 1;
-  chip8->reg->program_counter += kChip8NextInstruction;
-}
 
 void Chip8_ShiftRegisterXLeft_8xyE(Chip8* chip8, uint16_t memory){
   if (Chip8_ReadForthNibble(chip8->reg->general_perpose[
@@ -372,18 +357,32 @@ void Chip8_SetRegisterXToRandomByteANDMemory_Cxkk(Chip8* chip8,
   chip8->reg->general_perpose[kVx] = kRamdomNumber & kKK;
   chip8->reg->program_counter += kChip8NextInstruction;
 }
-// Stores the kKK from memory to V0 to VX starting at the memory index pointed
+// Stores the kKK from opcode to V0 to VX starting at the opcode index pointed
 // by the index register
-void Chip8_IndexStoreIteratorFx55(Chip8* chip8, uint16_t memory) { 
-  const uint8_t kRegisterIterator = Chip8_ReadThirdNibble(memory);
+void Chip8_IndexStoreIterator_Fx55(Chip8* chip8, uint16_t opcode) { 
+  const uint8_t kRegisterIterator = Chip8_ReadThirdNibble(opcode) + 1;
   const uint16_t kIndex = chip8->reg->index;
 
   for (size_t i = 0; i < kRegisterIterator; i++) {
-    chip8->reg->general_perpose[i] = chip8->memory[kIndex + i];
+    chip8->memory[kIndex + i] = chip8->reg->general_perpose[i];
   }
+  chip8->reg->index += kRegisterIterator + 1;
   chip8->reg->program_counter += kChip8NextInstruction;
 }
 
+// Fills all general perpose registers with opcode addresses starting at the
+// opcode address stored in the index register, then add  X + 1 to the
+// index register
+void Chip8_IndexRegisterFill_Fx65(Chip8* chip8, uint16_t opcode) {
+  const uint8_t kRegisterIterator = Chip8_ReadThirdNibble(opcode) + 1;
+  const uint16_t kIndex = chip8->reg->index;
+  size_t i;
+  for (i = 0; i < kRegisterIterator; i++) {
+    chip8->reg->general_perpose[i] = chip8->memory[i + kIndex];
+  }
+  chip8->reg->index += kRegisterIterator + 1;
+  chip8->reg->program_counter += kChip8NextInstruction;
+}
 // I know this will be the hardest function to create, I have no idea
 // What i'm doing
 void Chip8_Display_Dxyn(Chip8* chip8, uint16_t memory) {
@@ -423,9 +422,9 @@ void Chip8_Display_Dxyn(Chip8* chip8, uint16_t memory) {
   chip8->reg->program_counter += kChip8NextInstruction;
 }
   // 250 285
-// The memory parameter is here because almost all instruction are acessed by
+// The opcode parameter is here because almost all instruction are acessed by
 // pointer through an array, and by default all kKK is sent via chip8 and 
-// memory, if this instruction didn't have memory in it's parameters, the program
+// opcode, if this instruction didn't have opcode in it's parameters, the program
 // will crash
 void Chip8_NOP(Chip8* chip8, uint16_t memory) {
   chip8->reg->program_counter += kChip8NextInstruction;
