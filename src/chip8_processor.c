@@ -4,8 +4,8 @@
 
 void Chip8_InitializeRegisters(Chip8* chip8){
   // Set all the general perpose register to 0
-  memset(chip8->reg->general_perpose, 0, 
-         sizeof(chip8->reg->general_perpose));
+  memset(chip8->reg->general_purpose, 0, 
+         sizeof(chip8->reg->general_purpose));
   // Set the screen to black
  
   memset(chip8->screen, 0, sizeof(chip8->screen));
@@ -18,7 +18,7 @@ void Chip8_InitializeRegisters(Chip8* chip8){
   chip8->reg->delay_timer     = 0;
   chip8->reg->sound_timer     = 0;
   chip8->reg->index           = 0;
-  chip8->reg->status = &chip8->reg->general_perpose[kChip8VF];
+  chip8->reg->status = &chip8->reg->general_purpose[kChip8VF];
   
   return;
 }

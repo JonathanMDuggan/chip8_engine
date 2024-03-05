@@ -13,7 +13,7 @@ int main(int argc, char** argv){
   // ROM/3-corax+.ch8
   // ROM/tetris.rom
   // ROM/breakout.rom
-  if (Chip8_Emulate("ROM/IBM Logo.ch8") == EXIT_FAILURE) {
+  if (Chip8_Emulate("ROM/tetris.rom") == EXIT_FAILURE) {
     CHIP8_LOG_INFO("FAILED TO EMULATE\n");
   }
   return EXIT_SUCCESS;
