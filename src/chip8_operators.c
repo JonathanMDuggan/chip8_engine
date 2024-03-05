@@ -154,8 +154,8 @@ void Chip8_RegisterToRegisterOperation(Chip8* chip8, uint16_t memory,
 
   // Will the instruction use ^=, |=, &= ?, The helper functions (operation) 
   // determines that. 
-  operation(&chip8->reg->general_perpose[Chip8_ReadThirdNibble(memory)],
-             chip8->reg->general_perpose[Chip8_ReadSecondNibble(memory)]);
+  operation(&chip8->reg->general_purpose[Chip8_ReadThirdNibble(memory)],
+             chip8->reg->general_purpose[Chip8_ReadSecondNibble(memory)]);
 }
 // Higher Order Function: Call when instruction Set instruction uses Register X
 // as the operand for RegisterY. And! this operation changes the flag register
@@ -166,8 +166,8 @@ void Chip8_RegisterToRegisterOperationFlag(Chip8* chip8, uint16_t memory,
 
   // Will the instruction use +=, -=, ?, The helper functions (operation) 
   // determines that. 
-  operation(&chip8->reg->general_perpose[Chip8_ReadThirdNibble(memory)],
-    chip8->reg->general_perpose[Chip8_ReadSecondNibble(memory)],
+  operation(&chip8->reg->general_purpose[Chip8_ReadThirdNibble(memory)],
+    chip8->reg->general_purpose[Chip8_ReadSecondNibble(memory)],
     chip8);
 }
 // Higher Order Function: Call when instruction Set instruction uses Register X
@@ -181,7 +181,7 @@ void Chip8_MemoryRead(Chip8* chip8, uint16_t memory,
 
   // Will the instruction use |=, ^=, &= ?, The helper functions (operation) 
   // determines that. 
-  operation(&chip8->reg->general_perpose[Chip8_ReadThirdNibble(memory)],
+  operation(&chip8->reg->general_purpose[Chip8_ReadThirdNibble(memory)],
              Chip8_ReadLoByteFromWord(memory));
 }
 // Higher Order Function: Call when instruction Set instruction uses Register X
@@ -197,7 +197,7 @@ void Chip8_MemoryReadFlag(Chip8* chip8, uint16_t memory,
 
   // Will the instruction use +=, -=, ?, The helper functions (operation) 
   // determines that. 
-  operation(&chip8->reg->general_perpose[Chip8_ReadThirdNibble(memory)],
+  operation(&chip8->reg->general_purpose[Chip8_ReadThirdNibble(memory)],
     Chip8_ReadLoByteFromWord(memory),chip8);
 }
 uint8_t Chip8_GetRandom8bitNumber() {

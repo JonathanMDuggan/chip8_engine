@@ -122,7 +122,7 @@ extern void Chip8_SkipIfKeyIsNotPressed_ExA1(Chip8* chip8, uint16_t memory);
 
 extern void Chip8_RegisterEqualDelayTimer_Fx07(Chip8* chip8, uint16_t memory);
 extern void Chip8_StoreKeyPressInRegisterX_Fx0A(Chip8* chip8, uint16_t memory);
-extern void Chip8_Fx15(Chip8* chip8, uint16_t memory);
+extern void Chip8_DelayTimerEqualRegisterX_Fx15(Chip8* chip8, uint16_t memory);
 extern void Chip8_SetSoundTimerToRegisterX_Fx18(Chip8* chip8, uint16_t memory);
 extern void Chip8_IndexPlusRegisterX_Fx1E(Chip8* chip8, uint16_t memory);
 extern void Chip8_IndexEqualsRegisterX_Fx29(Chip8* chip8, uint16_t memory);
@@ -134,3 +134,4 @@ extern void Chip8_IndexStoreIterator_Fx55(Chip8* chip8, uint16_t memory);
 extern void Chip8_IndexRegisterFill_Fx65(Chip8* chip8, uint16_t opcode);
 extern void Chip8_Display_Dxyn(Chip8* chip8, uint16_t memory);
 extern void Chip8_NOP(Chip8* chip8, uint16_t memory);
+extern void Chip8_Timers(Chip8* chip8);

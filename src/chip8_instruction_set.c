@@ -73,7 +73,7 @@ void Chip8_SkipNextInstrucionIfRegisterXEqualMemory_3xkk(Chip8* chip8,
   const uint8_t kVx = Chip8_ReadThirdNibble(memory);
   const uint8_t kKK = Chip8_ReadLoByteFromWord(memory);
     
-  if (chip8->reg->general_perpose[kVx] == kKK){
+  if (chip8->reg->general_purpose[kVx] == kKK){
       chip8->reg->program_counter += kChip8SkipNextInstruction;
       return;
   }
@@ -86,8 +86,8 @@ void Chip8_SkipNextInstrucionIfRegisterXDoesNotEqualMemory_4xkk(
   const uint8_t kVx = Chip8_ReadThirdNibble(memory);
   const uint8_t kData = Chip8_ReadLoByteFromWord(memory);
 
-  if (chip8->reg->general_perpose[kVx] != kData) {
-    chip8->reg->program_counter += kChip8NextInstruction;
+  if (chip8->reg->general_purpose[kVx] != kData) {
+    chip8->reg->program_counter += kChip8SkipNextInstruction;
     return;
   }
 
@@ -98,7 +98,7 @@ void Chip8_SkipNextInstrucionIfRegisterXEqualRegisterY_5xy0(Chip8* chip8,
   const uint8_t kVx = Chip8_ReadThirdNibble(memory);
   const uint8_t kVy = Chip8_ReadSecondNibble(memory);
 
-  if (chip8->reg->general_perpose[kVx] == chip8->reg->general_perpose[kVy]){
+  if (chip8->reg->general_purpose[kVx] == chip8->reg->general_purpose[kVy]){
     chip8->reg->program_counter += kChip8NextInstruction;
     return;
   }
@@ -107,14 +107,14 @@ void Chip8_SkipNextInstrucionIfRegisterXEqualRegisterY_5xy0(Chip8* chip8,
 void Chip8_LoadMemoryToRegisterX_6xkk(Chip8* chip8, uint16_t memory) {
   const uint8_t kVx = Chip8_ReadThirdNibble(memory);
   const uint8_t kKK = Chip8_ReadLoByteFromWord(memory);
-  chip8->reg->general_perpose[kVx] = kKK;
+  chip8->reg->general_purpose[kVx] = kKK;
   chip8->reg->program_counter += kChip8NextInstruction;
 }
 
 void Chip8_AddMemoryToRegisterX_7xkk(Chip8* chip8, uint16_t memory) {
   const uint8_t kVx = Chip8_ReadThirdNibble(memory);
   const uint8_t kKK = Chip8_ReadLoByteFromWord(memory);
-  chip8->reg->general_perpose[kVx] += kKK & 0x00FF;
+  chip8->reg->general_purpose[kVx] += kKK & 0x00FF;
   chip8->reg->program_counter += kChip8NextInstruction;
 }
 
@@ -142,9 +142,9 @@ void Chip8_BitwiseAndRegisterXByRegisterY_8xy2(Chip8* chip8, uint16_t memory) {
 void Chip8_BitwiseXorRegisterXByRegisterY_8xy3(Chip8* chip8, uint16_t memory) {
   const uint8_t kVx = Chip8_ReadThirdNibble(memory);
   const uint8_t kVy = Chip8_ReadSecondNibble(memory);
-  const uint8_t kRegisterY = chip8->reg->general_perpose[kVy];
+  const uint8_t kRegisterY = chip8->reg->general_purpose[kVy];
 
-  chip8->reg->general_perpose[kVx] ^= kRegisterY;
+  chip8->reg->general_purpose[kVx] ^= kRegisterY;
   chip8->reg->program_counter += kChip8NextInstruction;
 }
 
@@ -154,26 +154,26 @@ void Chip8_BitwiseXorRegisterXByRegisterY_8xy3(Chip8* chip8, uint16_t memory) {
 void Chip8_AddRegisterXByRegisterY_8xy4(Chip8* chip8, uint16_t memory) {
   const uint8_t kVx = Chip8_ReadThirdNibble(memory);
   const uint8_t kVy = Chip8_ReadSecondNibble(memory);
-  const uint8_t kRegisterY = chip8->reg->general_perpose[kVy];
-  const uint8_t kRegisterX = chip8->reg->general_perpose[kVx];
+  const uint8_t kRegisterY = chip8->reg->general_purpose[kVy];
+  const uint8_t kRegisterX = chip8->reg->general_purpose[kVx];
   // Check if the 8bit number underflowed
   if ((int16_t)(kRegisterX + kRegisterY) < 255) {
     *chip8->reg->status = 1;
   }
-  chip8->reg->general_perpose[kVx] += kRegisterY;
+  chip8->reg->general_purpose[kVx] += kRegisterY;
   chip8->reg->program_counter += kChip8NextInstruction;
 }
 // kRegisterX -= kRegisterY
 void Chip8_SubRegisterXByRegisterY_8xy5(Chip8* chip8, uint16_t memory){
   const uint8_t kVx = Chip8_ReadThirdNibble(memory);
   const uint8_t kVy = Chip8_ReadSecondNibble(memory);
-  const uint8_t kRegisterY = chip8->reg->general_perpose[kVy];
-  const uint8_t kRegisterX = chip8->reg->general_perpose[kVx];
+  const uint8_t kRegisterY = chip8->reg->general_purpose[kVy];
+  const uint8_t kRegisterX = chip8->reg->general_purpose[kVx];
   // Check if the 8bit number underflowed
   if ((int16_t)(kRegisterX - kRegisterY) < 0) {
     *chip8->reg->status = 1;
   }
-  chip8->reg->general_perpose[kVx] -= kRegisterY;
+  chip8->reg->general_purpose[kVx] -= kRegisterY;
   chip8->reg->program_counter += kChip8NextInstruction;
 }
 // I chould not think of a good name for this instruction:
@@ -183,29 +183,29 @@ void Chip8_SubRegisterXByRegisterY_8xy5(Chip8* chip8, uint16_t memory){
 // is bit shifted by 1
 void Chip8_ShiftRegisterXRight_8xy6(Chip8* chip8, uint16_t memory){
   if (Chip8_ReadFirstNibble(
-    chip8->reg->general_perpose[Chip8_ReadThirdNibble(memory)]) == 1) {
+    chip8->reg->general_purpose[Chip8_ReadThirdNibble(memory)]) == 1) {
     *(chip8->reg->status) = 1;
   }
   else {
     *(chip8->reg->status) = 0;
   }
   // This is divison by 2!. This is how it's done in the Chip 8
-  chip8->reg->general_perpose[Chip8_ReadThirdNibble(memory)] >>= 1;
+  chip8->reg->general_purpose[Chip8_ReadThirdNibble(memory)] >>= 1;
   chip8->reg->program_counter += kChip8NextInstruction;
 }
 
 void Chip8_SubtractRegisterYbyRegisterX_8xy7(Chip8* chip8, uint16_t memory) {
   const uint8_t kVx = Chip8_ReadThirdNibble(memory);
   const uint8_t kVy = Chip8_ReadSecondNibble(memory);
-  const uint8_t kRegisterY = chip8->reg->general_perpose[kVy];
-  const uint8_t kRegisterX = chip8->reg->general_perpose[kVx];
+  const uint8_t kRegisterY = chip8->reg->general_purpose[kVy];
+  const uint8_t kRegisterX = chip8->reg->general_purpose[kVx];
 
   if (kRegisterX > kRegisterY) {
     *(chip8->reg->status) = 1;
   } else {
     *(chip8->reg->status) = 0;
   }
-  chip8->reg->general_perpose[kVy] -= kRegisterX;
+  chip8->reg->general_purpose[kVy] -= kRegisterX;
   chip8->reg->program_counter += kChip8NextInstruction;
 }
 
@@ -220,7 +220,7 @@ void Chip8_SkipIfKeyIsPressed_Ex9E(Chip8* chip8, uint16_t memory){
       kChip8KeyPadC, kChip8KeyPadE, kChip8KeyPadF};
 
   if ((chip8_input_lookup_table
-          [chip8->reg->general_perpose[Chip8_ReadThirdNibble(memory)]]) &
+          [chip8->reg->general_purpose[Chip8_ReadThirdNibble(memory)]]) &
       (chip8->input != 0)) {
 
     chip8->reg->program_counter += kChip8SkipNextInstruction;
@@ -240,7 +240,7 @@ void Chip8_SkipIfKeyIsNotPressed_ExA1(Chip8* chip8, uint16_t memory){
       kChip8KeyPadC, kChip8KeyPadE, kChip8KeyPadF};
 
   if ((chip8_input_lookup_table
-          [chip8->reg->general_perpose[Chip8_ReadThirdNibble(memory)]]) &
+          [chip8->reg->general_purpose[Chip8_ReadThirdNibble(memory)]]) &
       (chip8->input == 0)) {
 
     chip8->reg->program_counter += kChip8SkipNextInstruction;
@@ -251,7 +251,7 @@ void Chip8_SkipIfKeyIsNotPressed_ExA1(Chip8* chip8, uint16_t memory){
 
 void Chip8_RegisterEqualDelayTimer_Fx07(Chip8* chip8, uint16_t memory){
   const uint8_t kVx = Chip8_ReadThirdNibble(memory);
-  chip8->reg->general_perpose[kVx] = chip8->reg->delay_timer;
+  chip8->reg->general_purpose[kVx] = chip8->reg->delay_timer;
   chip8->reg->program_counter += kChip8NextInstruction;
 }
 
@@ -259,16 +259,16 @@ void Chip8_StoreKeyPressInRegisterX_Fx0A(Chip8* chip8, uint16_t memory){
   // If input = 0, that means no keys are pressed during at the instruction call
   if (chip8->input != 0) {
 
-    chip8->reg->general_perpose[Chip8_ReadThirdNibble(memory)] =
+    chip8->reg->general_purpose[Chip8_ReadThirdNibble(memory)] =
         Chip8ConvertInputToHex(chip8->input);
 
     chip8->reg->program_counter += kChip8NextInstruction;
   }
 }
 
-void Chip8_Fx15(Chip8* chip8, uint16_t memory) {
+void Chip8_DelayTimerEqualRegisterX_Fx15(Chip8* chip8, uint16_t memory) {
   const uint8_t kVx = Chip8_ReadThirdNibble(memory);
-  const uint8_t kRegisterX = chip8->reg->general_perpose[kVx];
+  const uint8_t kRegisterX = chip8->reg->general_purpose[kVx];
 
   chip8->reg->delay_timer = kRegisterX;
   chip8->reg->program_counter += kChip8NextInstruction;
@@ -276,26 +276,26 @@ void Chip8_Fx15(Chip8* chip8, uint16_t memory) {
 
 void Chip8_SetSoundTimerToRegisterX_Fx18(Chip8* chip8, uint16_t memory){
   const uint8_t kVx = Chip8_ReadThirdNibble(memory);
-  chip8->reg->sound_timer = chip8->reg->general_perpose[kVx];
+  chip8->reg->sound_timer = chip8->reg->general_purpose[kVx];
   chip8->reg->program_counter += kChip8NextInstruction;
 }
 
 void Chip8_IndexPlusRegisterX_Fx1E(Chip8* chip8, uint16_t memory){
   const uint8_t kVx = Chip8_ReadThirdNibble(memory);
-  chip8->reg->index += chip8->reg->general_perpose[kVx];
+  chip8->reg->index += chip8->reg->general_purpose[kVx];
   chip8->reg->program_counter += kChip8NextInstruction;
 }
 
 void Chip8_IndexEqualsRegisterX_Fx29(Chip8* chip8, uint16_t memory) {
   const uint8_t kVx = Chip8_ReadThirdNibble(memory);
-  chip8->reg->index = chip8->reg->general_perpose[kVx];
+  chip8->reg->index = chip8->reg->general_purpose[kVx];
   chip8->reg->program_counter += kChip8NextInstruction;
 }
 
 void Chip8_BCDConversion_Fx33(Chip8* chip8,
                               uint16_t opcode) {
   uint8_t register_x =
-      chip8->reg->general_perpose[Chip8_ReadThirdNibble(opcode)];
+      chip8->reg->general_purpose[Chip8_ReadThirdNibble(opcode)];
 
   for (uint8_t i = 2; i != 255; i--) {
     chip8->memory[chip8->reg->index + i] = register_x % 10;
@@ -307,7 +307,7 @@ void Chip8_BCDConversion_Fx33(Chip8* chip8,
 
 
 void Chip8_ShiftRegisterXLeft_8xyE(Chip8* chip8, uint16_t memory){
-  if (Chip8_ReadForthNibble(chip8->reg->general_perpose[
+  if (Chip8_ReadForthNibble(chip8->reg->general_purpose[
                             Chip8_ReadThirdNibble(memory)]) == 1) {
     *(chip8->reg->status) = 1;
   }
@@ -315,7 +315,7 @@ void Chip8_ShiftRegisterXLeft_8xyE(Chip8* chip8, uint16_t memory){
     *(chip8->reg->status) = 0;
   }
   // This is the power of 2!. This is how it's done in the Chip 8
-  chip8->reg->general_perpose[Chip8_ReadThirdNibble(memory)] <<= 1;
+  chip8->reg->general_purpose[Chip8_ReadThirdNibble(memory)] <<= 1;
   chip8->reg->program_counter += kChip8NextInstruction;
 }
 
@@ -323,8 +323,8 @@ void Chip8_SkipIfRegisterXDoesNotEqualRegisterY_9xy0(Chip8* chip8,
                                                           uint16_t memory){
   const uint8_t kVy = Chip8_ReadSecondNibble(memory);
   const uint8_t kVx = Chip8_ReadThirdNibble(memory);
-  const uint8_t kRegisterX = chip8->reg->general_perpose[kVx];
-  const uint8_t kRegisterY = chip8->reg->general_perpose[kVy];
+  const uint8_t kRegisterX = chip8->reg->general_purpose[kVx];
+  const uint8_t kRegisterY = chip8->reg->general_purpose[kVy];
 
   if (kRegisterX != kRegisterY){
     chip8->reg->program_counter += kChip8SkipNextInstruction;
@@ -342,7 +342,7 @@ void Chip8_StoreMemoryInIndexRegister_Annn(Chip8* chip8, uint16_t opcode){
 
 void Chip8_JumpToLocationInMemoryPlusRegister0_Bnnn(Chip8*   chip8,
                                                    uint16_t memory){
-  const uint8_t kRegister0 = chip8->reg->general_perpose[0];
+  const uint8_t kRegister0 = chip8->reg->general_purpose[0];
   const uint16_t kValue = Chip8_Read12bitFromWord(memory);
   chip8->reg->program_counter = kValue + kRegister0;
 }
@@ -353,8 +353,9 @@ void Chip8_SetRegisterXToRandomByteANDMemory_Cxkk(Chip8* chip8,
   const uint8_t kRamdomNumber = Chip8_GetRandom8bitNumber();
   const uint8_t kVx = Chip8_ReadThirdNibble(memory);
   const uint8_t kKK = Chip8_ReadLoByteFromWord(memory);
+  const uint8_t result = kRamdomNumber & kKK;
 
-  chip8->reg->general_perpose[kVx] = kRamdomNumber & kKK;
+  chip8->reg->general_purpose[kVx] = result;
   chip8->reg->program_counter += kChip8NextInstruction;
 }
 // Stores the kKK from opcode to V0 to VX starting at the opcode index pointed
@@ -364,7 +365,7 @@ void Chip8_IndexStoreIterator_Fx55(Chip8* chip8, uint16_t opcode) {
   const uint16_t kIndex = chip8->reg->index;
 
   for (size_t i = 0; i < kRegisterIterator; i++) {
-    chip8->memory[kIndex + i] = chip8->reg->general_perpose[i];
+    chip8->memory[kIndex + i] = chip8->reg->general_purpose[i];
   }
   chip8->reg->index += kRegisterIterator + 1;
   chip8->reg->program_counter += kChip8NextInstruction;
@@ -378,7 +379,7 @@ void Chip8_IndexRegisterFill_Fx65(Chip8* chip8, uint16_t opcode) {
   const uint16_t kIndex = chip8->reg->index;
   size_t i;
   for (i = 0; i < kRegisterIterator; i++) {
-    chip8->reg->general_perpose[i] = chip8->memory[i + kIndex];
+    chip8->reg->general_purpose[i] = chip8->memory[i + kIndex];
   }
   chip8->reg->index += kRegisterIterator + 1;
   chip8->reg->program_counter += kChip8NextInstruction;
@@ -390,8 +391,8 @@ void Chip8_Display_Dxyn(Chip8* chip8, uint16_t memory) {
   const uint8_t kVy = Chip8_ReadSecondNibble(memory);
   const uint8_t n = Chip8_ReadFirstNibble(memory);
 
-  uint8_t x = chip8->reg->general_perpose[kVx] % kChip8ScreenLenght;
-  uint8_t y = chip8->reg->general_perpose[kVy] % kChip8ScreenHeight;
+  uint8_t x = chip8->reg->general_purpose[kVx] % kChip8ScreenLenght;
+  uint8_t y = chip8->reg->general_purpose[kVy] % kChip8ScreenHeight;
 
   *(chip8->reg->status) = 0;
   uint8_t is_pixel_on = 0;
@@ -428,4 +429,13 @@ void Chip8_Display_Dxyn(Chip8* chip8, uint16_t memory) {
 // will crash
 void Chip8_NOP(Chip8* chip8, uint16_t memory) {
   chip8->reg->program_counter += kChip8NextInstruction;
+}
+
+void Chip8_Timers(Chip8* chip8) {
+  if (chip8->reg->delay_timer != 0) {
+    chip8->reg->delay_timer--; 
+  }
+  if (chip8->reg->sound_timer != 0) {
+    chip8->reg->sound_timer--;
+  }
 }

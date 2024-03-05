@@ -11,7 +11,7 @@ enum Chip8_Constants {
   kChip8ScreenLenght = 64, kChip8ScreenHeight = 32, kChip8FontSetSize = 80,
   kChip8Background = 0, kChip8Foreground = 0xFFFFFFFF,
 
-  // General perpose registers 
+  // General purpose registers 
   kChip8V0 = 0, kChip8V1 = 1, kChip8V2 = 2, kChip8V3 = 3, kChip8V4 = 4,
   kChip8V5 = 5, kChip8V6 = 6, kChip8V7 = 7, kChip8V8 = 8, kChip8V9 = 9,
   kChip8VA = 10, kChip8VB = 11, kChip8VD = 13, kChip8VE = 14, kChip8VF = 15,
@@ -24,7 +24,9 @@ enum Chip8_Constants {
   kKeyboard = 16,
 
   // program counter
-  kChip8NextInstruction = 2, kChip8SkipNextInstruction = 4
+  kChip8NextInstruction = 2, kChip8SkipNextInstruction = 4,
+
+  kChip8InstructionsPerSecond = 700, kChip8ScreenRefreshRate = 60
 };
 
 enum Chip8_InputMask {
@@ -39,7 +41,7 @@ typedef struct Register{
   uint16_t index;
   uint16_t program_counter;
   uint8_t  stack_pointer;
-  uint8_t  general_perpose[kChip8MaxNumberOfGeneralPerposeRegisters];
+  uint8_t  general_purpose[kChip8MaxNumberOfGeneralPerposeRegisters];
 
   // Points to the 16th value in the general perpose array.
   // The 16th register or VF is used as a status register sometimes
