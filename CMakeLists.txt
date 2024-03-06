@@ -5,7 +5,8 @@ cmake_minimum_required(VERSION 3.8)
 
 find_package(SDL2 REQUIRED)
 find_package(SDL2_image REQUIRED)
-
+# Thought I needed this, kept it anyway
+find_package(SDL2_mixer REQUIRED)
 # for some reason, if I use the project function, CMake cannot find the version
 # of SD2 , even when explicitly written, so it is commented out until I find
 # out how to fix that.
@@ -29,6 +30,7 @@ target_include_directories(chip8_engine PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 # Link against SDL2 library
 target_link_libraries(chip8_engine SDL2::SDL2 SDL2::SDL2main)
 target_link_libraries(chip8_engine SDL2_image::SDL2_image)
+target_link_libraries(chip8_engine SDL2_mixer::SDL2_mixer)
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET chip8_engine PROPERTY CXX_STANDARD 20)
