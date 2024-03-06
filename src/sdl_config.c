@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <SDL_image.h>
+#include <SDL_mixer.h>
 
 #include "include/sdl_config.h"
 #include "include/chip8_names.h"
@@ -13,10 +14,11 @@ uint8_t Chip8_SDLInitialize(Chip8* chip8, SDL* sdl) {
   sdl->window   = NULL;
   sdl->renderer = NULL;
   sdl->surface  = NULL;
+  memset(&sdl->audio_data, 0, sizeof(sdl->audio_data));
 
   size_t i = 0;
 
-  if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
     CHIP8_SDL_LOG_ERROR("could not initialize\n");
     return EXIT_FAILURE;
   }
@@ -69,7 +71,23 @@ uint8_t Chip8_SDLInitialize(Chip8* chip8, SDL* sdl) {
     // emulation
   }
   SDL_SetWindowIcon(sdl->window, sdl->surface);
-  return 0;
+  // TODO: Fix these magic numbers when you have free time.
+  // Setup the audio_set
+  SDL_memset(&sdl->audio_set, 0, sizeof(sdl->audio_set));
+  sdl->audio_set.freq     = 48000;
+  sdl->audio_set.format   = AUDIO_S16SYS;
+  sdl->audio_set.channels = 1;
+  sdl->audio_set.samples  = 1024;
+  sdl->audio_set.userdata = &sdl->audio_data;
+  sdl->audio_set.callback = NULL;
+  sdl->audio_ID = SDL_OpenAudioDevice(NULL, 0, 
+                                      &sdl->audio_set, 
+                                      &sdl->audio_get, 0);
+  if (sdl->audio_ID == 0) {
+    CHIP8_SDL_LOG_ERROR("failed to load audio ID: %s\n", IMG_GetError());
+  }
+
+  return EXIT_SUCCESS;
 }
 
 void Chip8_SDLReadInput(Chip8* chip8, SDL* sdl, uint8_t* emulating) {
@@ -160,6 +178,7 @@ void Chip8_SDLQuit(SDL* sdl) {
   SDL_DestroyRenderer(sdl->renderer);
   SDL_DestroyWindow(sdl->window);
   SDL_FreeSurface(sdl->surface);
+  SDL_CloseAudio();
 	SDL_Quit();
 	IMG_Quit();
 }

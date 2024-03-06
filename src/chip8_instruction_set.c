@@ -219,9 +219,10 @@ void Chip8_SkipIfKeyIsPressed_Ex9E(Chip8* chip8, uint16_t memory){
       kChip8KeyPad8, kChip8KeyPad9, kChip8KeyPadA, kChip8KeyPadB,
       kChip8KeyPadC, kChip8KeyPadE, kChip8KeyPadF};
 
-  if ((chip8_input_lookup_table
-          [chip8->reg->general_purpose[Chip8_ReadThirdNibble(memory)]]) &
-      (chip8->input != 0)) {
+  const uint8_t kVx = Chip8_ReadThirdNibble(memory);
+  const uint8_t kRegX = chip8->reg->general_purpose[kVx];
+
+  if ((chip8_input_lookup_table[kRegX] & chip8->input) != 0) {
 
     chip8->reg->program_counter += kChip8SkipNextInstruction;
     return;
@@ -233,16 +234,16 @@ void Chip8_SkipIfKeyIsPressed_Ex9E(Chip8* chip8, uint16_t memory){
 // every index, but I don't care. 
 
 void Chip8_SkipIfKeyIsNotPressed_ExA1(Chip8* chip8, uint16_t memory){
-  uint16_t chip8_input_lookup_table[kKeyboard] = {
+  uint16_t input_lookup_table[kKeyboard] = {
       kChip8KeyPad0, kChip8KeyPad1, kChip8KeyPad2, kChip8KeyPad3,
       kChip8KeyPad4, kChip8KeyPad5, kChip8KeyPad6, kChip8KeyPad7,
       kChip8KeyPad8, kChip8KeyPad9, kChip8KeyPadA, kChip8KeyPadB,
       kChip8KeyPadC, kChip8KeyPadE, kChip8KeyPadF};
 
-  if ((chip8_input_lookup_table
-          [chip8->reg->general_purpose[Chip8_ReadThirdNibble(memory)]]) &
-      (chip8->input == 0)) {
+  const uint8_t kVx = Chip8_ReadThirdNibble(memory);
+  const uint8_t kRegX = chip8->reg->general_purpose[kVx];
 
+  if ((input_lookup_table[kRegX] & chip8->input) == 0) {
     chip8->reg->program_counter += kChip8SkipNextInstruction;
     return;
   }
