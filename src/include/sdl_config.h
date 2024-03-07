@@ -37,5 +37,3 @@ extern uint8_t Chip8_SDLInitialize(Chip8* chip8, SDL* sdl);
 extern void Chip8_SDLQuit(SDL* sdl);
 extern void Chip8_SDLRender(Chip8* chip8, SDL* sdl);
 extern void Chip8_SDLReadInput(Chip8* chip8, SDL* sdl, uint8_t* emulating);
-extern void Chip8_SDLAudioCallback(void* userdata, uint8_t* stream, int len);
-extern void Chip8_CreateSquareWave(SDL* sdl);
