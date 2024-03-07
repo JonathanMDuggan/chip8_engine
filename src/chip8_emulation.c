@@ -38,27 +38,27 @@ uint8_t Chip8_Emulate(const char* file_name) {
   
   // Create opcode table
 
-  Chip8_CreateNNNOpcodeTable(&nnn_opcode_table);
-  Chip8_CreateKKOpcodeTable(&kk_opcode_table);
-  Chip8_Create8xyOpcodeTable(&_8xy_opcode_table);
-  Chip8_CreateFxOpcodeTable(&fx_opcode_table);
-  Chip8_CreateXYOpcodeTable(&xy_opcode_table);
-  Chip8_CreateXOpcodeTable(&x_opcode_table);
+  Chip8_CreateNNNOpcodeTable(nnn_opcode_table);
+  Chip8_CreateKKOpcodeTable(kk_opcode_table);
+  Chip8_Create8xyOpcodeTable(_8xy_opcode_table);
+  Chip8_CreateFxOpcodeTable(fx_opcode_table);
+  Chip8_CreateXYOpcodeTable(xy_opcode_table);
+  Chip8_CreateXOpcodeTable(x_opcode_table);
 
   while (emulating) {
     // Every Second, Chip8 processes 700 instructions. We render a frame every
-    // 60 seconds,
+    // 60 seconds. Therefore there are 11.6 instructions per frame 
     for (size_t i = 0; 
       i < kChip8InstructionsPerSecond / kChip8ScreenRefreshRate; i++) {
-      Chip8_ProcessInstruction(chip8, opcode, &nnn_opcode_table,
-                               &kk_opcode_table, &_8xy_opcode_table,
-                               &fx_opcode_table, &xy_opcode_table,
-                               &x_opcode_table);
+      Chip8_ProcessInstruction(chip8, opcode, nnn_opcode_table,
+                               kk_opcode_table, _8xy_opcode_table,
+                               fx_opcode_table, xy_opcode_table,
+                               x_opcode_table);
       Chip8_SDLReadInput(chip8, &sdl, &emulating);
       Chip8_SDLRender(chip8, &sdl);
     }
     SDL_Delay(16);
-    Chip8_Timers(chip8);
+    Chip8_Timers(chip8, &sdl);
   }
 
   free(chip8);
@@ -73,97 +73,96 @@ void Chip8_ProcessInstruction(Chip8* chip8, uint16_t opcode,
                               Chip8_OpcodeHandler* fx,
                               Chip8_OpcodeHandler* xy,
                               Chip8_OpcodeHandler* x) {
-  uint8_t kIdentifierForFandE;
-  uint8_t kIdentifier;
-  uint8_t k8xyIdentifier;
+  uint8_t identifier_for_F_and_E;
+  uint8_t identifier;
+  uint8_t _8xy_identifier;
   opcode = chip8->memory[chip8->reg->program_counter];
   opcode <<= 8;
   opcode |= chip8->memory[chip8->reg->program_counter + 1];
 
-  kIdentifierForFandE = Chip8_ReadLoByteFromWord(opcode);
-  kIdentifier = Chip8_ReadForthNibble(opcode);
-  k8xyIdentifier = Chip8_ReadFirstNibble(opcode);
+  identifier_for_F_and_E = Chip8_ReadLoByteFromWord(opcode);
+  identifier = Chip8_ReadForthNibble(opcode);
+  _8xy_identifier = Chip8_ReadFirstNibble(opcode);
 
   // I didn't bother writing a opcode table for this
-  if (kIdentifier == 0) {
+  if (identifier == 0) {
     Chip8_OpcodesStartsWith0(chip8, opcode);
     return;
   }
 
   // All NNN opcodes start with 1,2 and A,B
-  if (Chip8_IsNNNOpcode(kIdentifier)) {
-    if (kIdentifier > kOpcodeNNNLargestIdentifier) {
-      kIdentifier = kOpcodeNNNNOP;
+  if (Chip8_IsNNNOpcode(identifier)) {
+    if (identifier > kOpcodeNNNLargestIdentifier) {
+      identifier = kOpcodeNNNNOP;
     }
 #ifdef _DEBUG
-      Chip8_PrintNNNAssembly(chip8, opcode, nnn[kIdentifier].kAssembly);
+      Chip8_PrintNNNAssembly(chip8, opcode, nnn[identifier].kAssembly);
 #endif
-      nnn[kIdentifier].instruction(chip8, opcode);
+      nnn[identifier].instruction(chip8, opcode);
 
   }
 
-  if (Chip8_IsKKOpcode(kIdentifier)) {
-    if (kIdentifier > kOpcodeKKLargestIdentifier) {
-      kIdentifier = kOpcodeKKNOP;
+  if (Chip8_IsKKOpcode(identifier)) {
+    if (identifier > kOpcodeKKLargestIdentifier) {
+      identifier = kOpcodeKKNOP;
     }
      
 #ifdef _DEBUG
-    Chip8_PrintKKAssembly(chip8, opcode, kk[kIdentifier].kAssembly);
+    Chip8_PrintKKAssembly(chip8, opcode, kk[identifier].kAssembly);
 #endif
-    kk[kIdentifier].instruction(chip8, opcode);
+    kk[identifier].instruction(chip8, opcode);
     return;
   }
 
-
-  if (kIdentifier == 8) {
-    if (kIdentifier > kOpcode8LargestIdentifier) {
-      kIdentifier = kOpcodeStartsWith8NOP;
+  if (identifier == 8) {
+    if (identifier > kOpcode8LargestIdentifier) {
+      identifier = kOpcodeStartsWith8NOP;
     }
 #ifdef _DEBUG
-    Chip8_PrintXYAssembly(chip8, opcode, _8xy[k8xyIdentifier].kAssembly);
+    Chip8_PrintXYAssembly(chip8, opcode, _8xy[_8xy_identifier].kAssembly);
 #endif
-    _8xy[k8xyIdentifier].instruction(chip8, opcode);
+    _8xy[_8xy_identifier].instruction(chip8, opcode);
     return;
   }
-  if (kIdentifier == 0xE) {
-    if (kIdentifier > kOpcodeXLargestIdentifier) {
+  if (identifier == 0xE) {
+    if (identifier > kOpcodeXLargestIdentifier) {
       // We can do this because there are only 2 opcodes
       // in table, the other 158 are not.
-      kIdentifier = kOpcodeStartsWith8NOP;
+      identifier = kOpcodeStartsWith8NOP;
     }
 #ifdef _DEBUG
-    Chip8_PrintXAssembly(chip8, opcode, x[kIdentifierForFandE].kAssembly);
+    Chip8_PrintXAssembly(chip8, opcode, x[identifier_for_F_and_E].kAssembly);
 #endif
-    x[kIdentifierForFandE].instruction(chip8, opcode);
+    x[identifier_for_F_and_E].instruction(chip8, opcode);
   }
 
-  if (kIdentifier == 0xF) {
-    if (kIdentifier > kOpcodeFLargestIdentifier) {
-      kIdentifierForFandE = kOpcodeNNNNOP;
+  if (identifier == 0xF) {
+    if (identifier > kOpcodeFLargestIdentifier) {
+      identifier_for_F_and_E = kOpcodeNNNNOP;
     }
 #ifdef _DEBUG
-    Chip8_PrintXAssembly(chip8, opcode, fx[kIdentifierForFandE].kAssembly);
+    Chip8_PrintXAssembly(chip8, opcode, fx[identifier_for_F_and_E].kAssembly);
 #endif
-    fx[kIdentifierForFandE].instruction(chip8, opcode);
+    fx[identifier_for_F_and_E].instruction(chip8, opcode);
   }
 
-  if (Chip8_IsXYOpcode(kIdentifier)){
-    if (kIdentifier > kOpcodeXYLargestIdentifier) {
-      kIdentifier = kOpcodeNNNNOP;
+  if (Chip8_IsXYOpcode(identifier)){
+    if (identifier > kOpcodeXYLargestIdentifier) {
+      identifier = kOpcodeNNNNOP;
     }
 
 #ifdef _DEBUG
-    Chip8_PrintXYAssembly(chip8, opcode, xy[kIdentifier].kAssembly);
+    Chip8_PrintXYAssembly(chip8, opcode, xy[identifier].kAssembly);
 #endif
-    xy[kIdentifier].instruction(chip8, opcode);
+    xy[identifier].instruction(chip8, opcode);
   }
 }
 
 // I do break the 80 col rule here, but if I followed it, it would make this code
 // pretty hard to debug
 void Chip8_OpcodesStartsWith0(Chip8* chip8, uint16_t opcode) {
-  uint8_t least_significant_byte = Chip8_ReadLoByteFromWord(opcode);
-  switch (least_significant_byte) {
+  const uint8_t kLeastSignificantByte = Chip8_ReadLoByteFromWord(opcode);
+  switch (kLeastSignificantByte) {
     case CLS:
       CHIP8_LOG_INSTRUCTION("0x%03x 0x%04x  CLS\n",
                             chip8->reg->program_counter, opcode);

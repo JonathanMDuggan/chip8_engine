@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <SDL.h>
+#include "include/sdl_config.h"
 #include "include/chip8_processor.h"
 #include "include/chip8_instruction_set.h"
 #include "include/chip8_operators.h"
@@ -289,19 +290,22 @@ void Chip8_IndexPlusRegisterX_Fx1E(Chip8* chip8, uint16_t memory){
 
 void Chip8_IndexEqualsRegisterX_Fx29(Chip8* chip8, uint16_t memory) {
   const uint8_t kVx = Chip8_ReadThirdNibble(memory);
-  chip8->reg->index = chip8->reg->general_purpose[kVx];
+  chip8->reg->index = chip8->reg->general_purpose[kVx] * 5;
   chip8->reg->program_counter += kChip8NextInstruction;
 }
 
 void Chip8_BCDConversion_Fx33(Chip8* chip8,
                               uint16_t opcode) {
-  uint8_t register_x =
-      chip8->reg->general_purpose[Chip8_ReadThirdNibble(opcode)];
+  const uint8_t kVx = Chip8_ReadThirdNibble(opcode);
+  const uint16_t kIndex = chip8->reg->index;
+  const uint8_t register_x = chip8->reg->general_purpose[kVx];
+  const uint8_t one = register_x % 10;
+  const uint8_t ten = (register_x / 10) % 10;
+  const uint8_t hundred = register_x / 100;
 
-  for (uint8_t i = 2; i != 255; i--) {
-    chip8->memory[chip8->reg->index + i] = register_x % 10;
-    register_x /= 10;
-  }
+  chip8->memory[kIndex] = hundred;
+  chip8->memory[kIndex + 1] = ten;
+  chip8->memory[kIndex + 2] = one;
 
   chip8->reg->program_counter += kChip8NextInstruction;
 }
@@ -392,7 +396,7 @@ void Chip8_Display_Dxyn(Chip8* chip8, uint16_t memory) {
   const uint8_t kVy = Chip8_ReadSecondNibble(memory);
   const uint8_t n = Chip8_ReadFirstNibble(memory);
 
-  uint8_t x = chip8->reg->general_purpose[kVx] % kChip8ScreenLenght;
+  uint8_t x = chip8->reg->general_purpose[kVx] % kChip8ScreenLength;
   uint8_t y = chip8->reg->general_purpose[kVy] % kChip8ScreenHeight;
 
   *(chip8->reg->status) = 0;
@@ -410,7 +414,7 @@ void Chip8_Display_Dxyn(Chip8* chip8, uint16_t memory) {
         chip8->screen[(x + j) % 64][(y + i) % 32] ^= kChip8Foreground;
       }
 
-      if (x > kChip8ScreenLenght) {
+      if (x > kChip8ScreenLength) {
         break;
       }
     }
@@ -432,11 +436,15 @@ void Chip8_NOP(Chip8* chip8, uint16_t memory) {
   chip8->reg->program_counter += kChip8NextInstruction;
 }
 
-void Chip8_Timers(Chip8* chip8) {
+void Chip8_Timers(Chip8* chip8, SDL* sdl) {
+
   if (chip8->reg->delay_timer != 0) {
     chip8->reg->delay_timer--; 
   }
   if (chip8->reg->sound_timer != 0) {
+    SDL_PauseAudioDevice(sdl->audio.ID, 0);
     chip8->reg->sound_timer--;
+    return;
   }
+  SDL_PauseAudioDevice(sdl->audio.ID, 1);
 }

@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <math.h>
 #include <SDL_image.h>
 #include <SDL_mixer.h>
 
@@ -13,8 +14,7 @@
 uint8_t Chip8_SDLInitialize(Chip8* chip8, SDL* sdl) {
   sdl->window   = NULL;
   sdl->renderer = NULL;
-  sdl->surface  = NULL;
-  memset(&sdl->audio_data, 0, sizeof(sdl->audio_data));
+  sdl->surface = NULL;
 
   size_t i = 0;
 
@@ -71,22 +71,20 @@ uint8_t Chip8_SDLInitialize(Chip8* chip8, SDL* sdl) {
     // emulation
   }
   SDL_SetWindowIcon(sdl->window, sdl->surface);
-  // TODO: Fix these magic numbers when you have free time.
-  // Setup the audio_set
-  SDL_memset(&sdl->audio_set, 0, sizeof(sdl->audio_set));
-  sdl->audio_set.freq     = 48000;
-  sdl->audio_set.format   = AUDIO_S16SYS;
-  sdl->audio_set.channels = 1;
-  sdl->audio_set.samples  = 1024;
-  sdl->audio_set.userdata = &sdl->audio_data;
-  sdl->audio_set.callback = NULL;
-  sdl->audio_ID = SDL_OpenAudioDevice(NULL, 0, 
-                                      &sdl->audio_set, 
-                                      &sdl->audio_get, 0);
-  if (sdl->audio_ID == 0) {
-    CHIP8_SDL_LOG_ERROR("failed to load audio ID: %s\n", IMG_GetError());
-  }
 
+  if (SDL_LoadWAV("resources/square_wave_440hz.wav", &sdl->audio.set,
+                  &sdl->audio.buffer,
+                  &sdl->audio.length) == NULL) {
+    CHIP8_SDL_LOG_ERROR("failed to load square wave: %s\n", SDL_GetError());
+  }
+  sdl->audio.ID = SDL_OpenAudioDevice(NULL, 0, &sdl->audio.set, NULL, 0);
+
+  if (sdl->audio.ID == FALSE) {
+    CHIP8_SDL_LOG_ERROR("failed to load audio ID: %s\n", SDL_GetError());
+    return EXIT_FAILURE;
+  }
+  // I HAVE NO IDEA HOW TO TURN DOWN THE AUDIO!
+  SDL_QueueAudio(sdl->audio.ID, sdl->audio.buffer, sdl->audio.length);
   return EXIT_SUCCESS;
 }
 
@@ -146,25 +144,22 @@ void Chip8_SDLRender(Chip8* chip8, SDL* sdl) {
   // Do not render anything if the chip8 didn't draw anything to the screen
   if (chip8->draw_flag == FALSE) return;
   SDL_Rect srcrect = {0,0,0,0};
-
-  const uint32_t pixel_lenght = kChip8DefaultWindowLength / kChip8ScreenLenght;
-  const uint32_t pixel_height = kChip8DefaultWindowHeight / kChip8ScreenHeight;
   
-  srcrect.w = pixel_lenght;
-  srcrect.h = pixel_height;
+  srcrect.w = 10;
+  srcrect.h = 10;
 
-  SDL_SetRenderDrawColor(sdl->renderer, 0x90, 0xd3, 0x90, 0xFF);
+  SDL_SetRenderDrawColor(sdl->renderer, 0x90, 0x90, 0xe0, 0xFF);
   SDL_RenderClear(sdl->renderer);
   for (uint8_t y = 0; y < kChip8ScreenHeight; y++) {  
+    // Move down to the next row
+    srcrect.y = y * 10;
 
-    srcrect.y = y * pixel_height;
-
-    for (uint8_t x = 0; x < kChip8ScreenLenght; x++) {
-
-      srcrect.x = x * pixel_lenght;
+    for (uint8_t x = 0; x < kChip8ScreenLength; x++) {
+      // Print the next pixel to the right
+      srcrect.x = x * 10;
 
       if (chip8->screen[x][y] == 0xFFFFFFFF) {
-        SDL_SetRenderDrawColor(sdl->renderer, 0x00, 0x4e, 0x10, 0xFF);
+        SDL_SetRenderDrawColor(sdl->renderer, 0x00, 0x10, 0x70, 0xFF);
         SDL_RenderFillRect(sdl->renderer, &srcrect);
       }
     }
@@ -175,10 +170,12 @@ void Chip8_SDLRender(Chip8* chip8, SDL* sdl) {
 }
 
 void Chip8_SDLQuit(SDL* sdl) {
+  SDL_CloseAudioDevice(sdl->audio.ID);
   SDL_DestroyRenderer(sdl->renderer);
   SDL_DestroyWindow(sdl->window);
   SDL_FreeSurface(sdl->surface);
   SDL_CloseAudio();
+  SDL_FreeWAV(&sdl->audio.ID);
 	SDL_Quit();
 	IMG_Quit();
 }
