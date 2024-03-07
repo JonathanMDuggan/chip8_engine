@@ -1,4 +1,5 @@
 #pragma once
+#include "sdl_config.h"
 #include "chip8_names.h"
 #include "chip8_processor.h"
 #include <Windows.h>
@@ -134,4 +135,4 @@ extern void Chip8_IndexStoreIterator_Fx55(Chip8* chip8, uint16_t memory);
 extern void Chip8_IndexRegisterFill_Fx65(Chip8* chip8, uint16_t opcode);
 extern void Chip8_Display_Dxyn(Chip8* chip8, uint16_t memory);
 extern void Chip8_NOP(Chip8* chip8, uint16_t memory);
-extern void Chip8_Timers(Chip8* chip8);
+extern void Chip8_Timers(Chip8* chip8, SDL* sdl);

@@ -8,7 +8,7 @@ enum Chip8_Constants {
   kChip8MaxNumberOfGeneralPerposeRegisters = 16,
   kChip8MaxRAMSize = 4096, kChip8MaxStackSize = 16,
   // Chip8 screen specs is 64 by 32 pixels
-  kChip8ScreenLenght = 64, kChip8ScreenHeight = 32, kChip8FontSetSize = 80,
+  kChip8ScreenLength = 64, kChip8ScreenHeight = 32, kChip8FontSetSize = 80,
   kChip8Background = 0, kChip8Foreground = 0xFFFFFFFF,
 
   // General purpose registers 
@@ -62,7 +62,7 @@ typedef struct Chip8{
   // By having a 32 bit interger be 0xFFFFFFFF for white and 0x00000000 for 
   // black you can just put the value into the SDL instruction without needing
   // to translate the CHIP-8 display output.
-  uint32_t screen[kChip8ScreenLenght][kChip8ScreenHeight];
+  uint32_t screen[kChip8ScreenLength][kChip8ScreenHeight];
   // Sets to 1 when the DRW instruction was called,
   // Sets to 0 when SDL Render drew to the screen.
   uint8_t draw_flag;

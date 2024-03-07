@@ -6,6 +6,15 @@ typedef struct Location {
   uint32_t x;
   uint32_t y;
 }Location;
+typedef struct Audio {
+  SDL_AudioSpec set;
+  SDL_AudioSpec get;
+  SDL_AudioDeviceID ID;
+  SDL_AudioFormat wav;
+  uint32_t length;
+  uint8_t* buffer;
+  uint8_t* lower_volume_buffer;
+} Audio;
 
 typedef struct AudioData {
   uint16_t volume;
@@ -21,10 +30,7 @@ typedef struct SDL {
   SDL_Window* window;
   SDL_Surface* surface;
   SDL_Renderer* renderer;
-  SDL_AudioSpec audio_set;
-  SDL_AudioSpec audio_get;
-  SDL_AudioDeviceID audio_ID;
-  AudioData audio_data;
+  Audio audio;
 }SDL;
 
 extern uint8_t Chip8_SDLInitialize(Chip8* chip8, SDL* sdl);

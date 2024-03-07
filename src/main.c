@@ -17,4 +17,4 @@ int main(int argc, char** argv){
     CHIP8_LOG_INFO("FAILED TO EMULATE\n");
   }
   return EXIT_SUCCESS;
-} 
+}
