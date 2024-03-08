@@ -11,7 +11,7 @@
 #include "include/chip8_processor.h"
 #include "include/chip8_operators.h"
 
-uint8_t Chip8_SDLInitialize(Chip8* chip8, SDL* sdl) {
+uint8_t Chip8_SDLInitialize(SDL* sdl) {
   sdl->window   = NULL;
   sdl->renderer = NULL;
   sdl->surface = NULL;
@@ -70,7 +70,13 @@ uint8_t Chip8_SDLInitialize(Chip8* chip8, SDL* sdl) {
     // Continue running anyway, since it only effects the window and not the
     // emulation
   }
+
   SDL_SetWindowIcon(sdl->window, sdl->surface);
+
+  // Set the window to white
+  SDL_SetRenderDrawColor(sdl->renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+  SDL_RenderClear(sdl->renderer);
+  SDL_RenderPresent(sdl->renderer);
 
   if (SDL_LoadWAV("resources/square_wave_440hz.wav", &sdl->audio.set,
                   &sdl->audio.buffer,

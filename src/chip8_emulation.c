@@ -1,5 +1,4 @@
 #pragma once
-
 #include "include/chip8_emulation.h"
 #include "include/chip8_processor.h"
 #include "include/chip8_load_ROM.h"
@@ -13,10 +12,9 @@
 #include <string.h>
 #include <time.h>
 
-uint8_t Chip8_Emulate(const char* file_name) {
+uint8_t Chip8_Emulate(const char* file_name, SDL* sdl) {
   Chip8* chip8 = malloc(sizeof(Chip8));
   Register reg = {0};
-  SDL sdl;
   uint16_t opcode = 0;
   uint8_t emulating = TRUE;
   
@@ -34,7 +32,7 @@ uint8_t Chip8_Emulate(const char* file_name) {
   Chip8_InitializeMemory(chip8);
   // We do not return since we need to see all possible errors.
   if (Chip8_ReadFile(chip8, file_name) == EXIT_FAILURE) emulating = FALSE;
-  if (Chip8_SDLInitialize(chip8, &sdl) == EXIT_FAILURE) emulating = FALSE;
+  //if (Chip8_SDLInitialize(sdl) == EXIT_FAILURE) emulating = FALSE;
   
   // Create opcode table
 
@@ -54,68 +52,68 @@ uint8_t Chip8_Emulate(const char* file_name) {
                                kk_opcode_table, _8xy_opcode_table,
                                fx_opcode_table, xy_opcode_table,
                                x_opcode_table);
-      Chip8_SDLReadInput(chip8, &sdl, &emulating);
-      Chip8_SDLRender(chip8, &sdl);
+      Chip8_SDLReadInput(chip8, sdl, &emulating);
+      Chip8_SDLRender(chip8, sdl);
     }
     SDL_Delay(16);
-    Chip8_Timers(chip8, &sdl);
+    Chip8_Timers(chip8, sdl);
   }
 
   free(chip8);
-  Chip8_SDLQuit(&sdl);
+  Chip8_SDLQuit(sdl);
   return EXIT_SUCCESS;
 }
 
-void Chip8_ProcessInstruction(Chip8* chip8, uint16_t opcode,
-                              Chip8_OpcodeHandler* nnn,
-                              Chip8_OpcodeHandler* kk,
-                              Chip8_OpcodeHandler* _8xy,
-                              Chip8_OpcodeHandler* fx,
-                              Chip8_OpcodeHandler* xy,
-                              Chip8_OpcodeHandler* x) {
-  uint8_t identifier_for_F_and_E;
-  uint8_t identifier;
-  uint8_t _8xy_identifier;
-  opcode = chip8->memory[chip8->reg->program_counter];
-  opcode <<= 8;
-  opcode |= chip8->memory[chip8->reg->program_counter + 1];
+  void Chip8_ProcessInstruction(Chip8* chip8, uint16_t opcode,
+                                Chip8_OpcodeHandler* nnn,
+                                Chip8_OpcodeHandler* kk,
+                                Chip8_OpcodeHandler* _8xy,
+                                Chip8_OpcodeHandler* fx,
+                                Chip8_OpcodeHandler* xy,
+                                Chip8_OpcodeHandler* x) {
+    uint8_t identifier_for_F_and_E;
+    uint8_t identifier;
+    uint8_t _8xy_identifier;
+    opcode = chip8->memory[chip8->reg->program_counter];
+    opcode <<= 8;
+    opcode |= chip8->memory[chip8->reg->program_counter + 1];
 
-  identifier_for_F_and_E = Chip8_ReadLoByteFromWord(opcode);
-  identifier = Chip8_ReadForthNibble(opcode);
-  _8xy_identifier = Chip8_ReadFirstNibble(opcode);
+    identifier_for_F_and_E = Chip8_ReadLoByteFromWord(opcode);
+    identifier = Chip8_ReadForthNibble(opcode);
+    _8xy_identifier = Chip8_ReadFirstNibble(opcode);
 
-  // I didn't bother writing a opcode table for this
-  if (identifier == 0) {
-    Chip8_OpcodesStartsWith0(chip8, opcode);
-    return;
-  }
-
-  // All NNN opcodes start with 1,2 and A,B
-  if (Chip8_IsNNNOpcode(identifier)) {
-    if (identifier > kOpcodeNNNLargestIdentifier) {
-      identifier = kOpcodeNNNNOP;
+    // I didn't bother writing a opcode table for this
+    if (identifier == 0) {
+      Chip8_OpcodesStartsWith0(chip8, opcode);
+      return;
     }
-#ifdef _DEBUG
-      Chip8_PrintNNNAssembly(chip8, opcode, nnn[identifier].kAssembly);
-#endif
-      nnn[identifier].instruction(chip8, opcode);
 
-  }
+    // All NNN opcodes start with 1,2 and A,B
+    if (Chip8_IsNNNOpcode(identifier)) {
+      if (identifier > kOpcodeNNNLargestIdentifier) {
+        identifier = kOpcodeNNNNOP;
+      }
+  #ifdef _DEBUG
+        Chip8_PrintNNNAssembly(chip8, opcode, nnn[identifier].kAssembly);
+  #endif
+        nnn[identifier].instruction(chip8, opcode);
 
-  if (Chip8_IsKKOpcode(identifier)) {
-    if (identifier > kOpcodeKKLargestIdentifier) {
-      identifier = kOpcodeKKNOP;
     }
+
+    if (Chip8_IsKKOpcode(identifier)) {
+      if (identifier > kOpcodeKKLargestIdentifier) {
+        identifier = kOpcodeKKNOP;
+      }
      
-#ifdef _DEBUG
-    Chip8_PrintKKAssembly(chip8, opcode, kk[identifier].kAssembly);
-#endif
-    kk[identifier].instruction(chip8, opcode);
-    return;
-  }
+  #ifdef _DEBUG
+      Chip8_PrintKKAssembly(chip8, opcode, kk[identifier].kAssembly);
+  #endif
+      kk[identifier].instruction(chip8, opcode);
+      return;
+    }
 
-  if (identifier == 8) {
-    if (identifier > kOpcode8LargestIdentifier) {
+    if (identifier == 8) {
+      if (identifier > kOpcode8LargestIdentifier) {
       identifier = kOpcodeStartsWith8NOP;
     }
 #ifdef _DEBUG
@@ -412,5 +410,8 @@ void Chip8_PrintNNNAssembly(Chip8* chip8, uint16_t opcode,
   sprintf_s(buffer, sizeof(buffer), kAssemblyMessage,
             chip8->reg->program_counter, opcode, kKK);
   CHIP8_LOG_INSTRUCTION("%s", buffer);
+}
+#endif
+#ifdef __cplusplus
 }
 #endif
