@@ -56,7 +56,6 @@ uint8_t Chip8_SDLInitialize(SDL* sdl) {
   SDL_SetWindowTitle(sdl->window, CHIP8_APPLICATION_NAME);
 
   SDL_RenderSetScale(sdl->renderer, 40, 40);
-  SDL_SetRenderDrawColor(sdl->renderer, 0, 0, 0, 255);
   SDL_RenderClear(sdl->renderer);
   SDL_RenderPresent(sdl->renderer);
   // Makes the screen look sharper
@@ -74,7 +73,7 @@ uint8_t Chip8_SDLInitialize(SDL* sdl) {
   SDL_SetWindowIcon(sdl->window, sdl->surface);
 
   // Set the window to white
-  SDL_SetRenderDrawColor(sdl->renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+  SDL_SetRenderDrawColor(sdl->renderer, 44, 44, 44, 255);
   SDL_RenderClear(sdl->renderer);
   SDL_RenderPresent(sdl->renderer);
 

@@ -60,7 +60,6 @@ uint8_t Chip8_Emulate(const char* file_name, SDL* sdl) {
   }
 
   free(chip8);
-  Chip8_SDLQuit(sdl);
   return EXIT_SUCCESS;
 }
 

@@ -9,6 +9,7 @@
 
 int main(int argc, char** argv){
   CHIP8_LOG_INFO("Launching Chip8 Engine in _DEBUG mode!\n");
+  SDL sdl;
   // ROM/test_opcode.ch8
   // ROM/IBM Logo.ch8
   // ROM/3-corax+.ch8
@@ -17,6 +18,7 @@ int main(int argc, char** argv){
  // if (Chip8_Emulate("ROM/tetris.rom") == EXIT_FAILURE) {
  //   CHIP8_LOG_INFO("FAILED TO EMULATE\n");
  // }
-  Chip8GUI::CreateGUI();
+  Chip8GUI::Create(&sdl);
+  Chip8GUI::Run(&sdl);
   return EXIT_SUCCESS;
 }
