@@ -3,26 +3,47 @@
 #
 cmake_minimum_required(VERSION 3.8)
 
+# change the path to where your imgui dir is located
+set(IMGUI_DIR "G:/dev/SDK/imgui")
+include_directories(${IMGUI_DIR} ${IMGUI_DIR}/backends)
+
+set(NFD_DIR "G:/dev/SDK/nativefiledialog-master/src")
+include_directories(${NFD_DIR} "${NFD_DIR}/include")
+
 find_package(SDL2 REQUIRED)
 find_package(SDL2_image REQUIRED)
 # Thought I needed this, kept it anyway
 find_package(SDL2_mixer REQUIRED)
+
 # for some reason, if I use the project function, CMake cannot find the version
-# of SD2 , even when explicitly written, so it is commented out until I find
-# out how to fix that.
-#
-# project ("chip8_engine")
+# of SD2 , even when explicitly written, so it is commented out.
+#project("chip8_engine")
 
 # Add source to this project's executable.
 add_executable (chip8_engine
-                                        "src/main.c"
-  "src/include/chip8_processor.h"       "src/chip8_processor.c" 
-  "src/include/chip8_instruction_set.h" "src/chip8_instruction_set.c"
-  "src/include/chip8_load_ROM.h"        "src/chip8_load_ROM.c"
-  "src/include/chip8_operators.h"       "src/chip8_operators.c"
-  "src/include/sdl_config.h"            "src/sdl_config.c"
-  "src/include/chip8_names.h"
-  "src/include/chip8_emulation.h"       "src/chip8_emulation.c" )
+                                                  "src/main.cc"
+  "src/include/chip8_processor.h"                 "src/chip8_processor.c" 
+  "src/include/chip8_instruction_set.h"           "src/chip8_instruction_set.c"
+  "src/include/chip8_load_ROM.h"                  "src/chip8_load_ROM.c"
+  "src/include/chip8_operators.h"                 "src/chip8_operators.c"
+  "src/include/sdl_config.h"                      "src/sdl_config.c"
+  "src/include/chip8_names.h"                     
+  "src/include/chip8_emulation.h"                 "src/chip8_emulation.c"  
+  "src/imgui_config.cc"                           "src/include/imgui_config.h" 
+
+
+  ${IMGUI_DIR}/imgui.h                            ${IMGUI_DIR}/imgui.cpp
+  ${IMGUI_DIR}/backends/imgui_impl_sdl2.h         ${IMGUI_DIR}/backends/imgui_impl_sdl2.cpp
+  ${IMGUI_DIR}/backends/imgui_impl_sdlrenderer2.h ${IMGUI_DIR}/backends/imgui_impl_sdlrenderer2.cpp
+                                                  ${IMGUI_DIR}/imgui_draw.cpp 
+                                                  ${IMGUI_DIR}/imgui_demo.cpp
+                                                  ${IMGUI_DIR}/imgui_tables.cpp
+                                                  ${IMGUI_DIR}/imgui_widgets.cpp
+
+  "${NFD_DIR}/include/nfd.h"                      "${NFD_DIR}/nfd_win.cpp"     
+  "${NFD_DIR}/common.h"                           
+  "${NFD_DIR}/nfd_common.c" 
+)
 
 # Include directory for header files
 target_include_directories(chip8_engine PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
