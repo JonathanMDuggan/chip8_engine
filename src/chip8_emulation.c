@@ -205,8 +205,8 @@ uint8_t Chip8_IsXYOpcode(const uint8_t kIdentifier) {
     // These tables are used for opcodes which use the same arguments in the
 // kAssembly message
 
-// These opcodes were my absolute favourate. Almost all of them went from
-// 0 to 6, all of them took the same argurments (two chip8 registers) 
+// These opcodes were my absolute favourite. Almost all of them went from
+// 0 to 6, all of them took the same arguments (two chip8 registers) 
 // tldr: all the xy0 functions but 9xy0, 5xy0 and Dxyn
 void Chip8_Create8xyOpcodeTable(Chip8_OpcodeHandler* _8xy) {
   // There are no instructions for numbers 7 to 13, use a nop if called.
@@ -294,7 +294,7 @@ void Chip8_CreateKKOpcodeTable(Chip8_OpcodeHandler* kk) {
 }
 
 void Chip8_CreateFxOpcodeTable(Chip8_OpcodeHandler* fx) {
-  // Fill the whole array with nop, then replace the nops with with real
+  // Fill the whole array with nop, then replace the nops with real
   // instructions, doing with will make the code slower, but it's way easier
   // to debug otherwise.
   for (size_t i = 0; i < kOpcodeFLargestIdentifier; i++) {
@@ -345,7 +345,7 @@ void Chip8_CreateXYOpcodeTable(Chip8_OpcodeHandler* xy) {
 }
 
 void Chip8_CreateXOpcodeTable(Chip8_OpcodeHandler* x) { 
-  // wasting maybe over a 1kb of ram to store 2 instructions and a message
+  // wasting maybe over 1kb of RAM to store 2 instructions and a message
   // for more code readability 
   for (size_t i = 0; i < kOpcodeXLargestIdentifier; i++) {
     x[i].instruction = Chip8_NOP;
