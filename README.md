@@ -6,6 +6,6 @@ or any audience besides myself. Currently, it's highly unstable, and I plan to d
 it as soon as I successfully run it on my own machine.
 
 Chip8 Engine used the following libraries:
-* Dear Imgui: User interface
-* SDL Version 2: Graphic rendering
-* nativefiledialog: For opening the file dialogue
+* **Dear Imgui**: User interface
+* **SDL Version 2**: Graphic rendering
+* **nativefiledialog**: For opening the file dialogue
