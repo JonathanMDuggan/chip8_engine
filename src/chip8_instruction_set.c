@@ -10,31 +10,29 @@
 
 // Instruction Set functions:
 // 
-// Unconventional instruction naming convention, so here is the explaination: 
+// Unconventional instruction naming convention, so here is the explanation: 
 // 
-// The number at the end of every instruction repersents the opcodes
+// The number at the end of every instruction represents the opcodes
 // hexadecimal value. Whenever you see any letters outside of the hexadecimal
 // space ( letter after F) that being kNNN, x, or kk it means the following...
 // 
-// * kNNN: The value kNNN is the address to the a location in opcode
+// * NNN: The value kNNN is the address to the location in the opcode
 // 
-// * kk:  Store that value into Register 'X', 'X' being any of the 16 register
+// * kk:  Store that values into Register 'X', 'X' being any of the 16 registers
 //        values in the Chip-8
 // 
 // * x:   The hexadecimal value at that location is the register number,
 //        for example, if the opcode had A at that x location that means the
 //        register is A.
 // 
-// * y:   This means the opcode is calling a second register, the hexidecimal
+// * y:   This means the opcode is calling a second register, the hexadecimal
 //        located at y is the second register number.
 // 
 // Therefore if you see the instruction 'Chip8_AddMemoryToRegisterX_7xkk' it means
 // Add the value at 'kk' to Register 'x' 
 // 
-// Note: the reason we increament the Program counter by 2 each time is because
-// The chip8 reads 16bit numbers, we must take 
-//
-//
+// Note: the reason we increase the Program counter by 2 each time is because
+// The chip8 reads 16bit numbers, but the memory array is 8bits.
 
 // Set the display opcode to zero
 
@@ -45,8 +43,8 @@ void Chip8_ClearDisplay_00E0(Chip8* chip8, uint16_t memory){
 // Return from subroutine Chip8 instruction
 void Chip8_Return_00EE(Chip8* chip8, uint16_t memory){
   // You want to decrement the stack pointer when returning from the subroutine
-  // ,if you don't, the program counter will read the wrong address, or worse,
-  // go to address 0 since it never wrote an address there.
+  //, if you don't, the program counter will read the wrong address or worse,
+  //Go to address 0 since it never wrote an address there.
   chip8->reg->stack_pointer--;
   // Make the program counter point to where it was before 
   chip8->reg->program_counter = chip8->stack[chip8->reg->stack_pointer];
@@ -193,7 +191,7 @@ void Chip8_ShiftRegisterXRight_8xy6(Chip8* chip8, uint16_t memory){
   const uint8_t kLeastSignificantBit = kRegisterX & 0x0001;
 
   *chip8->reg->status = kLeastSignificantBit;
-  // This is divison by 2!. This is how it's done in the Chip 8
+  // This is division by 2!. This is how it's done in the Chip 8
   chip8->reg->general_purpose[kVx] >>= 1;
   chip8->reg->program_counter += kChip8NextInstruction;
 }
@@ -226,7 +224,7 @@ void Chip8_ShiftRegisterXLeft_8xyE(Chip8* chip8, uint16_t memory) {
   chip8->reg->program_counter += kChip8NextInstruction;
 }
 
-// I understand I could of created a for loop which bit shifted a word by one
+// I understand I could have created a for loop in which bit shifted a word by one
 // every index, but I don't care.
 
 void Chip8_SkipIfKeyIsPressed_Ex9E(Chip8* chip8, uint16_t memory){
@@ -247,7 +245,7 @@ void Chip8_SkipIfKeyIsPressed_Ex9E(Chip8* chip8, uint16_t memory){
   chip8->reg->program_counter += kChip8NextInstruction;
 }
 
-// I understand I could of created a for loop which bit shifted a word by one
+// I understand I could have created a for loop in which bit shifted a word by one
 // every index, but I don't care. 
 
 void Chip8_SkipIfKeyIsNotPressed_ExA1(Chip8* chip8, uint16_t memory){
@@ -274,7 +272,7 @@ void Chip8_RegisterEqualDelayTimer_Fx07(Chip8* chip8, uint16_t memory){
 }
 
 void Chip8_StoreKeyPressInRegisterX_Fx0A(Chip8* chip8, uint16_t memory){
-  // If input = 0, that means no keys are pressed during at the instruction call
+  // If input = 0, that means no keys are pressed during the instruction call
   if (chip8->input != 0) {
 
     chip8->reg->general_purpose[Chip8_ReadThirdNibble(memory)] =
@@ -378,7 +376,7 @@ void Chip8_IndexStoreIterator_Fx55(Chip8* chip8, uint16_t opcode) {
   chip8->reg->program_counter += kChip8NextInstruction;
 }
 
-// Fills all general perpose registers with opcode addresses starting at the
+// Fills all general purpose registers with opcode addresses starting at the
 // opcode address stored in the index register, then add  X + 1 to the
 // index register
 void Chip8_IndexRegisterFill_Fx65(Chip8* chip8, uint16_t opcode) {
@@ -392,7 +390,7 @@ void Chip8_IndexRegisterFill_Fx65(Chip8* chip8, uint16_t opcode) {
   chip8->reg->program_counter += kChip8NextInstruction;
 }
 // I know this will be the hardest function to create, I have no idea
-// What i'm doing
+// What I'm doing
 void Chip8_Display_Dxyn(Chip8* chip8, uint16_t memory) {
   const uint8_t kVx = Chip8_ReadThirdNibble(memory);
   const uint8_t kVy = Chip8_ReadSecondNibble(memory);
@@ -430,7 +428,7 @@ void Chip8_Display_Dxyn(Chip8* chip8, uint16_t memory) {
   chip8->reg->program_counter += kChip8NextInstruction;
 }
   // 250 285
-// The opcode parameter is here because almost all instruction are acessed by
+// The opcode parameter is here because almost all instructions are accessed by
 // pointer through an array, and by default all kKK is sent via chip8 and 
 // opcode, if this instruction didn't have opcode in it's parameters, the program
 // will crash
