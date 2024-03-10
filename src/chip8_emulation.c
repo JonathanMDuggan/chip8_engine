@@ -1,4 +1,5 @@
 #pragma once
+
 #include "include/chip8_emulation.h"
 #include "include/chip8_processor.h"
 #include "include/chip8_load_ROM.h"
@@ -12,6 +13,7 @@
 #include <string.h>
 #include <time.h>
 
+// Main emulation loop of the program
 uint8_t Chip8_Emulate(const char* file_name, SDL* sdl) {
   Chip8* chip8 = malloc(sizeof(Chip8));
   Register reg = {0};
@@ -32,7 +34,6 @@ uint8_t Chip8_Emulate(const char* file_name, SDL* sdl) {
   Chip8_InitializeMemory(chip8);
   // We do not return since we need to see all possible errors.
   if (Chip8_ReadFile(chip8, file_name) == EXIT_FAILURE) emulating = FALSE;
-  //if (Chip8_SDLInitialize(sdl) == EXIT_FAILURE) emulating = FALSE;
   
   // Create opcode table
 
@@ -58,7 +59,7 @@ uint8_t Chip8_Emulate(const char* file_name, SDL* sdl) {
     SDL_Delay(16);
     Chip8_Timers(chip8, sdl);
   }
-
+  SDL_SetRenderDrawColor(sdl->renderer, 44, 44, 44, 255);
   free(chip8);
   return EXIT_SUCCESS;
 }
@@ -272,7 +273,7 @@ void Chip8_CreateNNNOpcodeTable(Chip8_OpcodeHandler* nnn) {
 void Chip8_CreateKKOpcodeTable(Chip8_OpcodeHandler* kk) {
   kk[kSEVxbyte].instruction  = Chip8_SkipNextInstrucionIfRegisterXEqualMemory_3xkk;
   kk[kSNEVxbyte].instruction = Chip8_SkipNextInstrucionIfRegisterXDoesNotEqualMemory_4xkk;
-  kk[5].instruction = Chip8_NOP;
+  kk[5].instruction          = Chip8_NOP;
   kk[kLDVxbyte].instruction  = Chip8_LoadMemoryToRegisterX_6xkk;
   kk[kADDVxbyte].instruction = Chip8_AddMemoryToRegisterX_7xkk;
   kk[kRNDVxbyte].instruction = Chip8_SetRegisterXToRandomByteANDMemory_Cxkk;
