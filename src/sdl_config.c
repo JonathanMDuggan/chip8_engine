@@ -72,7 +72,7 @@ uint8_t Chip8_SDLInitialize(SDL* sdl) {
 
   SDL_SetWindowIcon(sdl->window, sdl->surface);
 
-  // Set the window to white
+  // Set the window to grey
   SDL_SetRenderDrawColor(sdl->renderer, 44, 44, 44, 255);
   SDL_RenderClear(sdl->renderer);
   SDL_RenderPresent(sdl->renderer);
@@ -106,8 +106,6 @@ void Chip8_SDLReadInput(Chip8* chip8, SDL* sdl, uint8_t* emulating) {
 
   if (event.type == SDL_MOUSEMOTION) {
     SDL_GetMouseState(&mouse.location.x, &mouse.location.y);
-    CHIP8_SDL_LOG_EXTRA_INFO("Mouse location: %d,%d\n", mouse.location.x,
-                             mouse.location.y);
     SDL_Delay(30);
   }
 
@@ -153,7 +151,7 @@ void Chip8_SDLRender(Chip8* chip8, SDL* sdl) {
   srcrect.w = 10;
   srcrect.h = 10;
 
-  SDL_SetRenderDrawColor(sdl->renderer, 0x90, 0x90, 0xe0, 0xFF);
+  SDL_SetRenderDrawColor(sdl->renderer, 0xFF, 0xF4, 0xC6, 0xFF);
   SDL_RenderClear(sdl->renderer);
   for (uint8_t y = 0; y < kChip8ScreenHeight; y++) {  
     // Move down to the next row
@@ -164,7 +162,7 @@ void Chip8_SDLRender(Chip8* chip8, SDL* sdl) {
       srcrect.x = x * 10;
 
       if (chip8->screen[x][y] == 0xFFFFFFFF) {
-        SDL_SetRenderDrawColor(sdl->renderer, 0x00, 0x10, 0x70, 0xFF);
+        SDL_SetRenderDrawColor(sdl->renderer, 0x18, 0x10, 0x08, 0xFF);
         SDL_RenderFillRect(sdl->renderer, &srcrect);
       }
     }

@@ -21,6 +21,7 @@ void Chip8GUI::Quit(SDL* sdl) {
 
 void Chip8GUI::Run(SDL* sdl) {
   uint8_t running = true;
+
   while (running) {
     SDL_Event e;
     while (SDL_PollEvent(&e)) {
@@ -29,6 +30,7 @@ void Chip8GUI::Run(SDL* sdl) {
       }
       ImGui_ImplSDL2_ProcessEvent(&e);
     }
+
     ImGui_ImplSDLRenderer2_NewFrame();
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
@@ -59,17 +61,6 @@ void Chip8GUI::MenuBar(SDL* sdl) {
           printf("Error: %s\n", NFD_GetError());
         }
       }
-      ImGui::EndMenu();
-    }
-    if (ImGui::BeginMenu("Settings")) {
-      ImGui::MenuItem("Colors");
-      ImGui::MenuItem("Graphics");
-      ImGui::MenuItem("Controllers");
-      ImGui::EndMenu();
-    }
-    if (ImGui::BeginMenu("Help")) {
-      ImGui::MenuItem("GitHub Repository");
-      ImGui::MenuItem("About");
       ImGui::EndMenu();
     }
   }
