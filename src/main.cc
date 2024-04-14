@@ -13,7 +13,7 @@
 int main(int argc, char** argv){
   CHIP8_LOG_INFO("Launching Chip8 Engine in _DEBUG mode!\n");
   SDL sdl;
-  // If the application is called in the console, don't load the gui
+  // If the application is called in the console, don't load the GUI
   // just run the emulation
   if (argc == 2) {
     Chip8_SDLInitialize(&sdl);

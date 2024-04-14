@@ -74,32 +74,29 @@ typedef struct Chip8_OpcodeHandler {
   const char* kAssembly;
 } Chip8_OpcodeHandler;
 
-// About the Chip-8 Instrcution set
-//
-// The Chip-8 only has 3X instructions, which is tiny.
-
 // Instruction Set functions:
-//
-// Unconventional instruction naming convention, so here is the explaination:
-//
-// The number at the end of every instruction repersents the opcodes
+// 
+// Unconventional instruction naming convention, so here is the explanation: 
+// 
+// The number at the end of every instruction represents the opcodes
 // hexadecimal value. Whenever you see any letters outside of the hexadecimal
-// space ( letter after F) that being nnn, x, or kk it means the following...
-//
-// * nnn: The value nnn is the address to the a location in memory
-//
-// * kk:  Store that value into Register 'X', 'X' being any of the 16 register
+// space ( letter after F) that being kNNN, x, or kk it means the following...
+// 
+// * NNN: The value kNNN is the address to the location in the opcode
+// 
+// * kk:  Store that values into Register 'X', 'X' being any of the 16 registers
 //        values in the Chip-8
-//
+// 
 // * x:   The hexadecimal value at that location is the register number,
 //        for example, if the opcode had A at that x location that means the
 //        register is A.
-//
-// * y:   This means the opcode is calling a second register, the hexidecimal
+// 
+// * y:   This means the opcode is calling a second register, the hexadecimal
 //        located at y is the second register number.
-//
-// Therefore if you see the instruction 'Chip8_AddMemoryToRegisterX_7xkk' it
-// means Add the value at 'kk' to Register 'x'
+// 
+// Therefore if you see the instruction 'Chip8_AddMemoryToRegisterX_7xkk' it means
+// Add the value at 'kk' to Register 'x' 
+// 
 
 // extern void Chip8_JumpToLocation_0nnn(chip8* chip8, uint16_t memory);
 extern void Chip8_ClearDisplay_00E0(Chip8* chip8, uint16_t memory);
@@ -156,8 +153,8 @@ extern void Chip8_IndexPlusRegisterX_Fx1E(Chip8* chip8, uint16_t memory);
 extern void Chip8_IndexEqualsRegisterX_Fx29(Chip8* chip8, uint16_t memory);
 extern void Chip8_BCDConversion_Fx33(Chip8* chip8, uint16_t memory);
 extern void Chip8_IndexStoreIterator_Fx55(Chip8* chip8, uint16_t memory);
-// Fills all general perpose registers with memory addresses starting at the
-// memory address stored in the index register, then sets the index register
+// Fills all general-purpose registers with memory addresses starting at the
+// memory address stored in the index register then sets the index register
 // to X
 extern void Chip8_IndexRegisterFill_Fx65(Chip8* chip8, uint16_t opcode);
 extern void Chip8_Display_Dxyn(Chip8* chip8, uint16_t memory);
