@@ -5,3 +5,9 @@
 	path = dep/imgui
 	url = https://github.com/ocornut/imgui
 	branch = docking
+[submodule "dep/nativefiledialog-extended"]
+	path = dep/nativefiledialog-extended
+	url = https://github.com/btzy/nativefiledialog-extended
+[submodule "dep/nativefiledialog"]
+	path = dep/nativefiledialog
+	url = https://github.com/mlabbe/nativefiledialog
