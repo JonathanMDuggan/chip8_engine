@@ -15,7 +15,7 @@
 
 # Mono auto generated files
 mono_crash.*
-
+.idea
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
@@ -32,6 +32,10 @@ bld/
 [Oo]ut/
 [Ll]og/
 [Ll]ogs/
+# Clion nonsense
+.idea/
+cmake-build-debug/
+CMakeFiles/
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
