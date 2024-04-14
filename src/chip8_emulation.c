@@ -207,7 +207,7 @@ uint8_t Chip8_IsXYOpcode(const uint8_t kIdentifier) {
 
 // These opcodes were my absolute favourate. Almost all of them went from
 // 0 to 6, all of them took the same argurments (two chip8 registers) 
-// tldr: all the xy0 functions but 9xy0, 5xy0 and Dxyn
+// tldr: all the xy0 opcodes but 9xy0, 5xy0 and Dxyn
 void Chip8_Create8xyOpcodeTable(Chip8_OpcodeHandler* _8xy) {
   // There are no instructions for numbers 7 to 13, use a nop if called.
   for (size_t i = 7; i < 0xE; i++) {
