@@ -4,15 +4,19 @@
 cmake_minimum_required(VERSION 3.8)
 
 # change the path to where your imgui dir is located
-set(IMGUI_DIR "G:/dev/SDK/imgui")
+set(IMGUI_DIR "dep/imgui")
 include_directories(${IMGUI_DIR} ${IMGUI_DIR}/backends)
 
-set(NFD_DIR "G:/dev/SDK/nativefiledialog-master/src")
+set(NFD_DIR "dep/nativefiledialog/src")
 include_directories(${NFD_DIR} "${NFD_DIR}/include")
+
+set(SDL2_DIR "dep/SDL2-2.30.0/cmake")
+set(SDL2_image_DIR "dep/SDL2_image-2.8.2/cmake")
+set(SDL2_mixer_DIR "dep/SDL2_mixer-2.8.0/cmake")
 
 find_package(SDL2 REQUIRED)
 find_package(SDL2_image REQUIRED)
-# Thought I needed this, kept it anyway
+## Thought I needed this, kept it anyway
 find_package(SDL2_mixer REQUIRED)
 
 # for some reason, if I use the project function, CMake cannot find the version
@@ -31,7 +35,6 @@ add_executable (chip8_engine
   "src/include/chip8_emulation.h"                 "src/chip8_emulation.c"  
   "src/imgui_config.cc"                           "src/include/imgui_config.h" 
 
-
   ${IMGUI_DIR}/imgui.h                            ${IMGUI_DIR}/imgui.cpp
   ${IMGUI_DIR}/backends/imgui_impl_sdl2.h         ${IMGUI_DIR}/backends/imgui_impl_sdl2.cpp
   ${IMGUI_DIR}/backends/imgui_impl_sdlrenderer2.h ${IMGUI_DIR}/backends/imgui_impl_sdlrenderer2.cpp
@@ -40,7 +43,7 @@ add_executable (chip8_engine
                                                   ${IMGUI_DIR}/imgui_tables.cpp
                                                   ${IMGUI_DIR}/imgui_widgets.cpp
 
-  "${NFD_DIR}/include/nfd.h"                      "${NFD_DIR}/nfd_win.cpp"     
+  "${NFD_DIR}/include/nfd.h"                     "${NFD_DIR}/nfd_win.cpp"     
   "${NFD_DIR}/common.h"                           
   "${NFD_DIR}/nfd_common.c" 
 )
