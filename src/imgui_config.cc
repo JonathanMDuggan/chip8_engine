@@ -3,6 +3,7 @@
 #include "include/sdl_config.h"
 #include "include/imgui_config.h"
 #include "include/chip8_emulation.h"
+#include "imgui.h" 
 void Chip8GUI::Create(SDL* sdl) { 
   Chip8_SDLInitialize(sdl);
   IMGUI_CHECKVERSION();
@@ -10,6 +11,15 @@ void Chip8GUI::Create(SDL* sdl) {
   ImGuiIO& io = ImGui::GetIO(); (void)io;
   ImGui_ImplSDL2_InitForSDLRenderer(sdl->window, sdl->renderer);
   ImGui_ImplSDLRenderer2_Init(sdl->renderer);
+  DefaultImGui();
+}
+
+void Chip8GUI::DefaultImGui() { 
+  ImGuiIO& io = ImGui::GetIO();
+  io.Fonts->AddFontFromFileTTF("resources/fonts/Roboto-Regular.ttf", 16.0f);
+  ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+  ImGui::PushStyleVar(ImGuiStyleVar_PopupBorderSize, 0.0f);
+  ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 7.0f));
 }
 
 void Chip8GUI::Quit(SDL* sdl) { 

@@ -24,9 +24,9 @@ uint8_t Chip8_SDLInitialize(SDL* sdl) {
   }
   // Creates a window instance
   // Cheaks if the window was created, if not, print the error to the console
-  SDL_CreateWindowAndRenderer(kChip8DefaultWindowLength,
-                              kChip8DefaultWindowHeight, SDL_WINDOW_SHOWN,
-                              &sdl->window, &sdl->renderer);
+  SDL_CreateWindowAndRenderer(
+      kChip8DefaultWindowLength, kChip8DefaultWindowHeight,
+      SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE, &sdl->window, &sdl->renderer);
   // Doing this will casue the window to not have a name for less than a second,
   // but I don't think I care to change this.
 
