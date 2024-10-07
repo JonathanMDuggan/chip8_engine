@@ -61,8 +61,9 @@ if (CMAKE_VERSION VERSION_GREATER 3.12)
 endif()
 
 file(COPY ${SDL2_image_DIR}/../lib/x64/SDL2_image.dll DESTINATION ${DST_DIR}/)
-# TODO: Write two file function which take the sdl2_image and sdl2 dll files.
-# and place them into the output file
+file(COPY ${SDL2_DIR}/../lib/x64/SDL2.dll DESTINATION ${DST_DIR}/)
+file(COPY ${SDL2_mixer_DIR}/../lib/x64/SDL2_mixer.dll DESTINATION ${DST_DIR}/)
+
 
 # Move the resource folder into the exe directory
 file(COPY resources DESTINATION ${DST_DIR}/)
