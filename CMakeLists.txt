@@ -10,9 +10,9 @@ include_directories(${IMGUI_DIR} ${IMGUI_DIR}/backends)
 set(NFD_DIR "dep/nativefiledialog/src")
 include_directories(${NFD_DIR} "${NFD_DIR}/include")
 
-set(SDL2_DIR "dep/SDL2-2.30.0/cmake")
-set(SDL2_image_DIR "dep/SDL2_image-2.8.2/cmake")
-set(SDL2_mixer_DIR "dep/SDL2_mixer-2.8.0/cmake")
+#set(SDL2_DIR "dep/SDL2-2.30.0/cmake")
+#set(SDL2_image_DIR "dep/SDL2_image-2.8.2/cmake")
+#set(SDL2_mixer_DIR "dep/SDL2_mixer-2.8.0/cmake")
 
 find_package(SDL2 REQUIRED)
 find_package(SDL2_image REQUIRED)
@@ -59,6 +59,10 @@ target_link_libraries(chip8_engine SDL2_mixer::SDL2_mixer)
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET chip8_engine PROPERTY CXX_STANDARD 20)
 endif()
+
+file(COPY ${SDL2_image_DIR}/../lib/x64/SDL2_image.dll DESTINATION ${DST_DIR}/)
+# TODO: Write two file function which take the sdl2_image and sdl2 dll files.
+# and place them into the output file
 
 # Move the resource folder into the exe directory
 file(COPY resources DESTINATION ${DST_DIR}/)

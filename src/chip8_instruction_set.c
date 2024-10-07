@@ -106,15 +106,15 @@ void Chip8_SkipNextInstrucionIfRegisterXEqualRegisterY_5xy0(Chip8* chip8,
 }
 void Chip8_LoadMemoryToRegisterX_6xkk(Chip8* chip8, uint16_t memory) {
   const uint8_t kVx = Chip8_ReadThirdNibble(memory);
-  const uint8_t kKK = Chip8_ReadLoByteFromWord(memory);
-  chip8->reg->general_purpose[kVx] = kKK;
+  const uint8_t kMemory = Chip8_ReadLoByteFromWord(memory);
+  chip8->reg->general_purpose[kVx] = kMemory;
   chip8->reg->program_counter += kChip8NextInstruction;
 }
 
 void Chip8_AddMemoryToRegisterX_7xkk(Chip8* chip8, uint16_t memory) {
   const uint8_t kVx = Chip8_ReadThirdNibble(memory);
-  const uint8_t kKK = Chip8_ReadLoByteFromWord(memory);
-  chip8->reg->general_purpose[kVx] += kKK;
+  const uint8_t kMemory = Chip8_ReadLoByteFromWord(memory);
+  chip8->reg->general_purpose[kVx] += kMemory;
   chip8->reg->program_counter += kChip8NextInstruction;
 }
 
@@ -357,13 +357,13 @@ void Chip8_SetRegisterXToRandomByteANDMemory_Cxkk(Chip8* chip8,
 
   const uint8_t kRamdomNumber = Chip8_GetRandom8bitNumber();
   const uint8_t kVx = Chip8_ReadThirdNibble(memory);
-  const uint8_t kKK = Chip8_ReadLoByteFromWord(memory);
-  const uint8_t result = kRamdomNumber & kKK;
+  const uint8_t kMemory = Chip8_ReadLoByteFromWord(memory);
+  const uint8_t result = kRamdomNumber & kMemory;
 
   chip8->reg->general_purpose[kVx] = result;
   chip8->reg->program_counter += kChip8NextInstruction;
 }
-// Stores the kKK from opcode to V0 to VX starting at the opcode index pointed
+// Stores the kMemory from opcode to V0 to VX starting at the opcode index pointed
 // by the index register
 void Chip8_IndexStoreIterator_Fx55(Chip8* chip8, uint16_t opcode) { 
   const uint8_t kRegisterIterator = Chip8_ReadThirdNibble(opcode) + 1;
@@ -429,7 +429,7 @@ void Chip8_Display_Dxyn(Chip8* chip8, uint16_t memory) {
 }
   // 250 285
 // The opcode parameter is here because almost all instructions are accessed by
-// pointer through an array, and by default all kKK is sent via chip8 and 
+// pointer through an array, and by default all kMemory is sent via chip8 and 
 // opcode, if this instruction didn't have opcode in it's parameters, the program
 // will crash
 void Chip8_NOP(Chip8* chip8, uint16_t memory) {

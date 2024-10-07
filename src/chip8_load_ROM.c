@@ -16,7 +16,7 @@ uint8_t Chip8_ReadFile(Chip8* chip8, const char* file_name) {
     printf("Could not find file name: %s\n", file_name);
     return EXIT_FAILURE;
   }
-  // check the size of the file before puting it into the chip8 ram
+  // check the size of the file before putting it into the chip8 ram
   file_size = ftell(file);
 
   if (file_size > kChip8MaxROMSize) {

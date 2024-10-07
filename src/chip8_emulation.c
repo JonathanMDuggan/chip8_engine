@@ -381,12 +381,12 @@ void Chip8_PrintKKAssembly(Chip8* chip8, uint16_t opcode,
                                const char* kAssembly) {
   const char* const kAssemblyMessage = kAssembly;
   const uint8_t kVx = Chip8_ReadThirdNibble(opcode);
-  const uint16_t kKK = Chip8_ReadLoByteFromWord(opcode);
+  const uint16_t kMemory = Chip8_ReadLoByteFromWord(opcode);
   char buffer[50] = {0};
 
   sprintf_s(buffer, sizeof(buffer), kAssemblyMessage,
             chip8->reg->program_counter, opcode,
-            kVx, kKK);
+            kVx, kMemory);
   CHIP8_LOG_INSTRUCTION("%s", buffer);
 }
 
@@ -404,12 +404,12 @@ void Chip8_PrintXAssembly(Chip8* chip8, uint16_t opcode,
 
 void Chip8_PrintNNNAssembly(Chip8* chip8, uint16_t opcode,
                                 const char* kAssembly) {
-  const uint16_t kKK = Chip8_Read12bitFromWord(opcode);
+  const uint16_t kMemory = Chip8_Read12bitFromWord(opcode);
   const char* const kAssemblyMessage = kAssembly;
   char buffer[50] = {0};
 
   sprintf_s(buffer, sizeof(buffer), kAssemblyMessage,
-            chip8->reg->program_counter, opcode, kKK);
+            chip8->reg->program_counter, opcode, kMemory);
   CHIP8_LOG_INSTRUCTION("%s", buffer);
 }
 #endif
